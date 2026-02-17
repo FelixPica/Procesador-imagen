@@ -1,6 +1,11 @@
-const CACHE_NAME = 'procesador-imagenes-v1';
+const CACHE_NAME = 'procesador-imagenes-v2';
+
+// Rutas relativas para que funcione en cualquier subpath (GitHub Pages, Netlify, etc.)
 const urlsToCache = [
-  '/procesador-imagenes.html',
+  './procesador-imagenes.html',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png',
   'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js',
   'https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js'
@@ -8,42 +13,50 @@ const urlsToCache = [
 
 // Instalación - cachear recursos
 self.addEventListener('install', event => {
+  self.skipWaiting(); // Activar inmediatamente sin esperar
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Cache abierto');
-        return cache.addAll(urlsToCache);
-      })
+      .then(cache => cache.addAll(urlsToCache))
+      .catch(err => console.log('Error cacheando:', err))
   );
 });
 
-// Activación - limpiar cachés antiguos
+// Activación - limpiar cachés antiguos y tomar control inmediatamente
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Eliminando caché antiguo:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    Promise.all([
+      caches.keys().then(cacheNames =>
+        Promise.all(
+          cacheNames
+            .filter(name => name !== CACHE_NAME)
+            .map(name => caches.delete(name))
+        )
+      ),
+      self.clients.claim()
+    ])
   );
 });
 
-// Fetch - servir desde caché cuando sea posible
+// Fetch - estrategia Cache First con fallback a red
 self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
+
   event.respondWith(
     caches.match(event.request)
-      .then(response => {
-        // Devolver desde caché si existe, sino hacer fetch
-        return response || fetch(event.request);
-      })
-      .catch(() => {
-        // Si falla (offline), devolver página de error o recurso por defecto
-        console.log('Recurso no disponible offline');
+      .then(cachedResponse => {
+        if (cachedResponse) return cachedResponse;
+
+        return fetch(event.request)
+          .then(networkResponse => {
+            if (!networkResponse || networkResponse.status !== 200) {
+              return networkResponse;
+            }
+            const responseToCache = networkResponse.clone();
+            caches.open(CACHE_NAME)
+              .then(cache => cache.put(event.request, responseToCache));
+            return networkResponse;
+          })
+          .catch(() => caches.match('./procesador-imagenes.html'));
       })
   );
 });
