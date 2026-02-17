@@ -1,10 +1,13 @@
-const CACHE_NAME = 'procesador-imagenes-v2';
+const CACHE_NAME = 'procesador-imagenes-v3';
+
+// Calcular base path dinámicamente desde la ubicación del service worker
+const BASE_PATH = self.location.pathname.replace('service-worker.js', '');
 
 const urlsToCache = [
-  '/Procesador-imagen/procesador-imagenes.html',
-  '/Procesador-imagen/manifest.json',
-  '/Procesador-imagen/icon-192.png',
-  '/Procesador-imagen/icon-512.png',
+  BASE_PATH + 'procesador-imagenes.html',
+  BASE_PATH + 'manifest.json',
+  BASE_PATH + 'icon-192.png',
+  BASE_PATH + 'icon-512.png',
   'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js',
   'https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js'
@@ -55,7 +58,7 @@ self.addEventListener('fetch', event => {
               .then(cache => cache.put(event.request, responseToCache));
             return networkResponse;
           })
-          .catch(() => caches.match('/Procesador-imagen/procesador-imagenes.html'));
+          .catch(() => caches.match(BASE_PATH + 'procesador-imagenes.html'));
       })
   );
 });
