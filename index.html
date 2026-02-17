@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#667eea">
+    <title>Instalar Procesador de Imágenes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        
+        .icon img {
+            width: 100%;
+            height: 100%;
+        }
+        
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.8em;
+        }
+        
+        p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+        
+        .features {
+            text-align: left;
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+        
+        .features h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+        
+        .features ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .features li {
+            padding: 8px 0;
+            color: #555;
+        }
+        
+        .features li:before {
+            content: "✅ ";
+        }
+        
+        .alert {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: left;
+            font-size: 0.9em;
+        }
+        
+        .alert strong {
+            color: #856404;
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">
+            <img src="icon-192.png" alt="Procesador de Imágenes">
+        </div>
+        
+        <h1>📱 Procesador de Imágenes</h1>
+        <p>Instala la app en tu dispositivo para usarla sin conexión y con acceso rápido</p>
+        
+        <button id="installBtn" class="btn hidden">
+            📥 Instalar App
+        </button>
+        
+        <button onclick="window.location.href='procesador-imagenes.html'" class="btn btn-secondary">
+            🌐 Abrir en Navegador
+        </button>
+        
+        <div class="features">
+            <h3>🎯 Funcionalidades:</h3>
+            <ul>
+                <li>Añade texto personalizado a imágenes</li>
+                <li>Renombra y convierte formatos por lotes</li>
+                <li>Gestión de metadatos GPS/EXIF</li>
+                <li>Funciona completamente offline</li>
+                <li>No requiere cuenta ni registro</li>
+            </ul>
+        </div>
+        
+        <div id="installInstructions" class="alert hidden">
+            <strong>💡 Para instalar manualmente:</strong><br>
+            En Chrome Android: Menú (⋮) → "Añadir a pantalla de inicio"<br>
+            En Safari iOS: Compartir → "Añadir a inicio"
+        </div>
+    </div>
+    
+    <script>
+        let deferredPrompt;
+        const installBtn = document.getElementById('installBtn');
+        const installInstructions = document.getElementById('installInstructions');
+        
+        // Detectar evento de instalación
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Mostrar botón de instalación
+            installBtn.classList.remove('hidden');
+            installInstructions.classList.add('hidden');
+        });
+        
+        // Manejar click en instalar
+        installBtn.addEventListener('click', async () => {
+            if (!deferredPrompt) {
+                return;
+            }
+            
+            // Mostrar prompt de instalación
+            deferredPrompt.prompt();
+            
+            // Esperar respuesta del usuario
+            const { outcome } = await deferredPrompt.userChoice;
+            
+            if (outcome === 'accepted') {
+                console.log('Usuario aceptó la instalación');
+            } else {
+                console.log('Usuario rechazó la instalación');
+            }
+            
+            deferredPrompt = null;
+            installBtn.classList.add('hidden');
+        });
+        
+        // Si ya está instalado o no se puede instalar
+        window.addEventListener('appinstalled', () => {
+            console.log('App instalada exitosamente');
+            installBtn.classList.add('hidden');
+        });
+        
+        // Mostrar instrucciones si no hay soporte de instalación automática
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (installBtn.classList.contains('hidden') && !window.matchMedia('(display-mode: standalone)').matches) {
+                    installInstructions.classList.remove('hidden');
+                }
+            }, 2000);
+        });
+        
+        // Detectar si ya está ejecutándose como PWA instalada
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            console.log('App ejecutándose como PWA instalada');
+        }
+    </script>
+</body>
+</html>

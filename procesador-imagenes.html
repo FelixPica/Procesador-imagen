@@ -1,0 +1,2694 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#667eea">
+    <meta name="description" content="Procesador de imágenes - Añade texto y renombra archivos">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Procesador Imágenes">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <title>Procesador de Imágenes - Añadir Texto y Renombrar</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script></script>
+    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/piexifjs/1.0.6/piexif.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5em;
+            }
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1em;
+        }
+
+        .step {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .step-title {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .step-number {
+            background: #667eea;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9em;
+        }
+
+        .drop-zone {
+            border: 3px dashed #ccc;
+            border-radius: 12px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .drop-zone:hover, .drop-zone.drag-over {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .drop-zone.has-files {
+            border-color: #28a745;
+            background: #f0fff4;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn.btn-reset {
+            background: #dc3545;
+        }
+
+        .btn.btn-reset:hover:not(:disabled) {
+            background: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+        }
+
+        .controls-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .control-group label {
+            font-weight: 600;
+            color: #555;
+            font-size: 0.9em;
+        }
+
+        .control-group input, .control-group select {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .control-group input:focus, .control-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .preview-item {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            overflow: hidden;
+            background: white;
+            transition: all 0.3s ease;
+        }
+
+        .preview-item:hover {
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            transform: translateY(-4px);
+        }
+
+        .preview-canvas {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .preview-info {
+            padding: 12px;
+            background: #f8f9fa;
+        }
+
+        .preview-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9em;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .preview-text {
+            color: #666;
+            font-size: 0.85em;
+            font-style: italic;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .info-box strong {
+            color: #1976d2;
+        }
+
+        .info-box details {
+            margin-top: 10px;
+        }
+
+        .info-box summary {
+            cursor: pointer;
+            color: #667eea;
+            font-weight: 600;
+            padding: 5px;
+        }
+
+        .info-box summary:hover {
+            background: rgba(102, 126, 234, 0.1);
+            border-radius: 4px;
+        }
+
+        .info-box pre {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85em;
+            border: 1px solid #e0e0e0;
+        }
+
+        .info-box ul {
+            margin-top: 10px;
+            padding-left: 20px;
+            line-height: 1.8;
+        }
+
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status.processing {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .file-list {
+            margin-top: 15px;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+
+        .file-item {
+            padding: 8px;
+            background: white;
+            margin-bottom: 5px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .csv-preview {
+            margin-top: 15px;
+            overflow-x: auto;
+        }
+
+        .csv-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9em;
+        }
+
+        .csv-table th, .csv-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        .csv-table th {
+            background: #667eea;
+            color: white;
+            font-weight: 600;
+        }
+
+        .csv-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+
+        .encoding-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .encoding-badge.utf8 {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .encoding-badge.other {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .manual-input-item {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 15px;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e0e0e0;
+            transition: border-color 0.3s ease;
+        }
+
+        .manual-input-item:hover {
+            border-color: #667eea;
+        }
+
+        .manual-input-item img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .manual-input-content {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .manual-input-content label {
+            font-weight: 600;
+            color: #333;
+            font-size: 0.9em;
+        }
+
+        .manual-input-content input {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .manual-input-content input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        #autoPreview:checked + span {
+            color: #667eea;
+        }
+
+        label:has(#autoPreview):hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        /* Estilos para selección de modo */
+        .mode-card {
+            background: white;
+            border: 3px solid #e0e0e0;
+            border-radius: 16px;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            min-height: 500px;
+        }
+
+        .mode-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+        }
+
+        .mode-card-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mode-card-button {
+            margin-top: auto;
+        }
+
+        .mode-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .mode-card h2 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .mode-card p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .mode-features {
+            list-style: none;
+            text-align: left;
+            margin: 20px 0;
+            padding: 0;
+        }
+
+        .mode-features li {
+            padding: 8px 0;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        /* Estilos para modo renombrar */
+        .rename-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .rename-item {
+            display: grid;
+            grid-template-columns: 100px 1fr 1fr auto auto;
+            gap: 15px;
+            align-items: center;
+            padding: 15px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .rename-item:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .rename-item img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .rename-item input, .rename-item select {
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .rename-item input:focus, .rename-item select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .batch-controls {
+            display: flex;
+            gap: 15px;
+            align-items: end;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .rename-item {
+                grid-template-columns: 80px 1fr;
+                gap: 10px;
+            }
+            
+            .rename-item img {
+                width: 80px;
+                height: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Pantalla de Selección de Modo -->
+        <div id="modeSelection" style="display: block;">
+            <h1 style="text-align: center; margin-bottom: 20px;">🎨 Procesador de Imágenes</h1>
+            <p style="text-align: center; color: #666; margin-bottom: 40px; font-size: 1.1em;">Elige qué quieres hacer con tus imágenes</p>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; max-width: 900px; margin: 0 auto;">
+                <!-- Modo 1: Añadir Texto -->
+                <div class="mode-card" onclick="selectMode('addText')">
+                    <div class="mode-card-content">
+                        <div class="mode-icon">✍️</div>
+                        <h2>Añadir Texto a Imágenes</h2>
+                        <p>Inserta texto personalizado en tus imágenes con control total sobre estilo, posición y formato de salida.</p>
+                        <ul class="mode-features">
+                            <li>✅ Texto con estilos personalizables</li>
+                            <li>✅ Múltiples fuentes de texto (CSV, manual, nombre archivo)</li>
+                            <li>✅ Bordes, fondos y efectos</li>
+                            <li>✅ Exportar en JPG, PNG o WebP</li>
+                        </ul>
+                    </div>
+                    <div class="mode-card-button">
+                        <button class="btn btn-primary" style="width: 100%; margin-top: 15px;">
+                            Comenzar →
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Modo 2: Renombrar y Convertir -->
+                <div class="mode-card" onclick="selectMode('renameConvert')">
+                    <div class="mode-card-content">
+                        <div class="mode-icon">🔄</div>
+                        <h2>Renombrar y Convertir</h2>
+                        <p>Cambia nombres de archivos y convierte formatos de imagen de forma rápida y sencilla.</p>
+                        <ul class="mode-features">
+                            <li>✅ Renombrado individual o por lotes</li>
+                            <li>✅ Conversión de formatos (JPG, PNG, WebP)</li>
+                            <li>✅ Patrones de nomenclatura</li>
+                            <li>✅ Vista previa antes de descargar</li>
+                        </ul>
+                    </div>
+                    <div class="mode-card-button">
+                        <button class="btn btn-success" style="width: 100%; margin-top: 15px;">
+                            Comenzar →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modo 1: Añadir Texto (código existente) -->
+        <div id="addTextMode" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <h1>🎨 Añadir Texto a Imágenes</h1>
+                    <p class="subtitle">✨ Múltiples formatos (JPG/PNG/WebP), texto personalizado con UTF-8</p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button id="backToMode1" class="btn btn-primary" style="background: #6c757d;">
+                        ← Volver al Inicio
+                    </button>
+                    <button id="resetAll" class="btn btn-primary btn-reset" style="white-space: nowrap;">
+                        🔄 Limpiar Todo
+                    </button>
+                </div>
+            </div>
+
+        <!-- Paso 1: Subir Imágenes -->
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">1</span>
+                Subir Imágenes
+            </div>
+            <div class="drop-zone" id="imageDropZone">
+                <p style="font-size: 1.2em; margin-bottom: 10px;">📁 Arrastra imágenes aquí o haz clic para seleccionar</p>
+                <p style="color: #666; font-size: 0.9em;">Soporta: JPG, PNG, GIF, WebP</p>
+                <input type="file" id="imageInput" class="file-input" multiple accept="image/*">
+            </div>
+            <div id="imageList" class="file-list"></div>
+        </div>
+
+        <!-- Paso 2: Elegir Fuente de Texto -->
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">2</span>
+                Elegir Fuente de Texto
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: 600; color: #333; margin-bottom: 10px; display: block;">¿De dónde quieres obtener el texto?</label>
+                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px 15px; background: white; border: 2px solid #667eea; border-radius: 8px;">
+                        <input type="radio" name="textSource" id="sourceCSV" value="csv" checked>
+                        <span style="font-weight: 600;">📊 Desde archivo CSV</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px 15px; background: white; border: 2px solid #667eea; border-radius: 8px;">
+                        <input type="radio" name="textSource" id="sourceManual" value="manual">
+                        <span style="font-weight: 600;">✍️ Escribir manualmente</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px 15px; background: white; border: 2px solid #667eea; border-radius: 8px;">
+                        <input type="radio" name="textSource" id="sourceFilename" value="filename">
+                        <span style="font-weight: 600;">📝 Nombre del archivo</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 10px 15px; background: white; border: 2px solid #667eea; border-radius: 8px;">
+                        <input type="radio" name="textSource" id="sourceBoth" value="both">
+                        <span style="font-weight: 600;">🔀 CSV + Nombre</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Selector de delimitador CSV -->
+            <div id="delimiterSection" style="margin-bottom: 20px; padding: 15px; background: white; border-radius: 8px; border: 2px solid #e0e0e0;">
+                <label style="font-weight: 600; color: #333; margin-bottom: 10px; display: block;">🔧 Delimitador del CSV</label>
+                <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="radio" name="delimiter" id="delimiterComma" value="," checked>
+                        <span>Coma (,)</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="radio" name="delimiter" id="delimiterSemicolon" value=";">
+                        <span>Punto y coma (;)</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="radio" name="delimiter" id="delimiterTab" value="\t">
+                        <span>Tabulación (Tab)</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                        <input type="radio" name="delimiter" id="delimiterPipe" value="|">
+                        <span>Barra vertical (|)</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px;">
+                        <input type="radio" name="delimiter" id="delimiterCustom" value="custom">
+                        <span>Otro:</span>
+                        <input type="text" id="customDelimiter" maxlength="3" style="width: 50px; padding: 5px; border: 2px solid #e0e0e0; border-radius: 4px;" placeholder="?">
+                    </label>
+                </div>
+                <div class="info-box" style="margin-top: 10px; background: #fff3cd; border-color: #ffc107;">
+                    <strong>💡 Tip:</strong> Excel en español suele usar <strong>punto y coma (;)</strong> como delimitador.<br>
+                    Si ves que tus datos no se separan correctamente, prueba cambiando el delimitador.<br>
+                    Las columnas necesarias son: <code>Nombre_Archivo</code> y <code>Texto</code>
+                </div>
+            </div>
+
+            <div id="csvSection">
+                <button id="downloadTemplate" class="btn btn-primary" style="margin-bottom: 15px;">
+                    📥 Descargar Plantilla CSV de Ejemplo
+                </button>
+                <div class="drop-zone" id="csvDropZone">
+                    <p style="font-size: 1.2em; margin-bottom: 10px;">📊 Arrastra tu archivo CSV aquí o haz clic</p>
+                    <p style="color: #666; font-size: 0.9em;">Soporta UTF-8, ISO-8859-1 y Windows-1252</p>
+                    <input type="file" id="csvInput" class="file-input" accept=".csv,.txt">
+                </div>
+            </div>
+
+            <div id="filenameSection" style="display: none;">
+                <div class="info-box">
+                    <strong>💡 Modo Nombre de Archivo:</strong> El texto será el nombre de cada imagen sin la extensión.<br>
+                    Ejemplo: <code>foto_vacaciones_2024.jpg</code> → Texto: <code>foto_vacaciones_2024</code>
+                </div>
+            </div>
+
+            <div id="manualSection" style="display: none;">
+                <div class="info-box" style="margin-bottom: 15px;">
+                    <strong>✍️ Modo Manual:</strong> Escribe el texto para cada imagen directamente aquí.<br>
+                    Primero sube tus imágenes, luego aparecerán campos para escribir el texto de cada una.
+                </div>
+                <div id="manualInputs" style="display: grid; gap: 15px;"></div>
+            </div>
+
+            <div id="bothSection" style="display: none;">
+                <button id="downloadTemplateBoth" class="btn btn-primary" style="margin-bottom: 15px;">
+                    📥 Descargar Plantilla CSV de Ejemplo
+                </button>
+                <div class="drop-zone" id="csvDropZoneBoth">
+                    <p style="font-size: 1.2em; margin-bottom: 10px;">📊 Arrastra tu archivo CSV aquí o haz clic</p>
+                    <p style="color: #666; font-size: 0.9em;">Soporta UTF-8, ISO-8859-1 y Windows-1252</p>
+                    <input type="file" id="csvInputBoth" class="file-input" accept=".csv,.txt">
+                </div>
+                <div class="info-box">
+                    <strong>🔀 Modo Combinado:</strong> Usa variables en tu CSV:<br>
+                    • <code>{filename}</code> = nombre del archivo sin extensión<br>
+                    • <code>{text}</code> = texto del CSV<br>
+                    Ejemplo CSV: <code>foto1.jpg,Año {filename}</code> → <code>Año foto1</code><br>
+                    💡 Columnas adicionales son válidas y se ignorarán. Las columnas necesarias son: <code>Nombre_Archivo</code> y <code>Texto</code>
+                </div>
+            </div>
+            <div class="info-box">
+                <strong>📝 Formato del CSV:</strong> Tu archivo debe tener dos columnas: <code>Nombre_Archivo</code> y <code>Texto</code><br>
+                <strong>⚠️ Importante para acentos:</strong> Guarda tu CSV en formato <strong>UTF-8</strong> (á, é, í, ó, ú, ñ, ¿, ¡)<br>
+                <strong>💡 Columnas adicionales:</strong> Si tu CSV tiene más columnas (fecha, categoría, etc.), no hay problema. Solo se usarán <code>Nombre_Archivo</code> y <code>Texto</code>.<br>
+                <details>
+                    <summary>🔧 ¿Cómo guardar CSV en UTF-8?</summary>
+                    <ul>
+                        <li><strong>Excel (Windows):</strong> Archivo → Guardar como → Selecciona <strong>"CSV UTF-8 (delimitado por comas) (*.csv)"</strong></li>
+                        <li><strong>Excel (Mac):</strong> Archivo → Guardar como → Formato de archivo: <strong>CSV UTF-8</strong></li>
+                        <li><strong>Google Sheets:</strong> Archivo → Descargar → Valores separados por comas (.csv) - ✅ automáticamente UTF-8</li>
+                        <li><strong>LibreOffice Calc:</strong> Guardar como → Tipo: Texto CSV → Conjunto de caracteres: <strong>UTF-8</strong></li>
+                        <li><strong>Notepad++:</strong> Codificación → Convertir a UTF-8</li>
+                        <li><strong>VSCode:</strong> Click en el encoding (abajo derecha) → Guardar con codificación → UTF-8</li>
+                    </ul>
+                    <p style="margin-top: 10px; color: #d32f2f;"><strong>❌ Evita:</strong> "CSV (delimitado por comas)" sin UTF-8 - los acentos se verán mal</p>
+                </details>
+                <details style="margin-top: 10px;">
+                    <summary>📊 ¿Puedo tener columnas adicionales?</summary>
+                    <p style="margin-top: 10px;">¡Sí! Puedes tener todas las columnas que necesites. Por ejemplo:</p>
+                    <pre style="background: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto;">Nombre_Archivo,Texto,fecha,categoria,autor,notas
+foto1.jpg,Vacaciones 2024,2024-01-15,viaje,Juan,Playa
+foto2.jpg,Cumpleaños,2024-02-20,evento,María,Fiesta</pre>
+                    <p style="margin-top: 10px;">Solo se usarán <code>Nombre_Archivo</code> y <code>Texto</code>. Las demás columnas (fecha, categoria, autor, notas) se ignorarán automáticamente. ✅</p>
+                </details>
+            </div>
+            <div id="csvPreview" class="csv-preview"></div>
+        </div>
+
+        <!-- Paso 3: Personalizar -->
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">3</span>
+                Personalizar Texto
+            </div>
+            <div class="controls-grid">
+                <div class="control-group">
+                    <label>Posición Vertical</label>
+                    <select id="positionY">
+                        <option value="top" selected>Arriba</option>
+                        <option value="center">Centro</option>
+                        <option value="bottom">Abajo</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Posición Horizontal</label>
+                    <select id="positionX">
+                        <option value="left">Izquierda</option>
+                        <option value="center" selected>Centro</option>
+                        <option value="right">Derecha</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Tamaño de Fuente (px)</label>
+                    <input type="number" id="fontSize" value="48" min="12" max="200">
+                </div>
+                <div class="control-group">
+                    <label>Color del Texto</label>
+                    <input type="color" id="textColor" value="#ffffff">
+                </div>
+                <div class="control-group">
+                    <label>Borde del Texto (px)</label>
+                    <input type="number" id="textStroke" value="3" min="0" max="20">
+                </div>
+                <div class="control-group">
+                    <label>Color del Borde</label>
+                    <input type="color" id="strokeColor" value="#000000">
+                </div>
+                <div class="control-group">
+                    <label>Color de Fondo</label>
+                    <input type="color" id="bgColor" value="#000000">
+                </div>
+                <div class="control-group">
+                    <label>Opacidad de Fondo (%)</label>
+                    <input type="range" id="bgOpacity" min="0" max="100" value="0">
+                    <span id="opacityValue" style="text-align: center; color: #667eea; font-weight: 600;">0% (Transparente)</span>
+                </div>
+                <div class="control-group">
+                    <label>Padding (px)</label>
+                    <input type="number" id="padding" value="20" min="0" max="100">
+                </div>
+                <div class="control-group">
+                    <label>Fuente</label>
+                    <select id="fontFamily">
+                        <option value="Arial" selected>Arial</option>
+                        <option value="Helvetica">Helvetica</option>
+                        <option value="Times New Roman">Times New Roman</option>
+                        <option value="Courier New">Courier New</option>
+                        <option value="Georgia">Georgia</option>
+                        <option value="Verdana">Verdana</option>
+                        <option value="Impact">Impact</option>
+                        <option value="Comic Sans MS">Comic Sans MS</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Formato de Salida</label>
+                    <select id="outputFormat">
+                        <option value="jpg" selected>JPG (menor tamaño)</option>
+                        <option value="png">PNG (alta calidad)</option>
+                        <option value="webp">WebP (moderno)</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label>Calidad (%)</label>
+                    <input type="range" id="outputQuality" min="60" max="100" value="95">
+                    <span id="qualityValue" style="text-align: center; color: #667eea; font-weight: 600;">95%</span>
+                </div>
+            </div>
+            <div style="margin-top: 15px; padding: 15px; background: white; border-radius: 8px; border: 2px solid #e0e0e0;">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 10px;">
+                    <input type="checkbox" id="renameWithText" style="width: 18px; height: 18px; cursor: pointer;">
+                    <span style="font-weight: 600; color: #333;">📝 Renombrar archivos con el texto de la imagen</span>
+                </label>
+                <p style="margin: 0 0 15px 28px; color: #666; font-size: 0.9em;">
+                    El nombre del archivo será el texto que se añade a la imagen. Si hay duplicados, se añade _1, _2, etc.
+                </p>
+                
+                <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #e0e0e0;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="font-weight: 600; color: #333;">📍 Gestión de Metadatos EXIF</span>
+                        <select id="exifMode" style="padding: 8px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 0.9em;">
+                            <option value="keep">Preservar todos</option>
+                            <option value="remove_all">Eliminar todos</option>
+                            <option value="custom">Personalizado</option>
+                        </select>
+                    </div>
+                    <p style="margin: 5px 0 10px 0; color: #666; font-size: 0.85em;">
+                        Controla qué metadatos mantener en las imágenes JPG procesadas.
+                    </p>
+                    
+                    <div id="exifCustomOptions" style="display: none; margin-top: 15px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                        <p style="font-weight: 600; color: #333; margin-bottom: 10px; font-size: 0.9em;">Selecciona qué metadatos eliminar:</p>
+                        <div style="display: grid; gap: 8px;">
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="removeGPS" style="width: 16px; height: 16px; cursor: pointer;">
+                                <span style="font-size: 0.9em;">🗺️ Ubicación GPS (latitud, longitud, altitud)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="removeDateTime" style="width: 16px; height: 16px; cursor: pointer;">
+                                <span style="font-size: 0.9em;">📅 Fecha y hora de captura</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="removeCamera" style="width: 16px; height: 16px; cursor: pointer;">
+                                <span style="font-size: 0.9em;">📷 Información de cámara (modelo, marca)</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="removeCopyright" style="width: 16px; height: 16px; cursor: pointer;">
+                                <span style="font-size: 0.9em;">©️ Copyright y autor</span>
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="removeSettings" style="width: 16px; height: 16px; cursor: pointer;">
+                                <span style="font-size: 0.9em;">⚙️ Configuración de foto (ISO, apertura, velocidad)</span>
+                            </label>
+                        </div>
+                        <p style="margin-top: 10px; padding: 10px; background: #fff3cd; border-radius: 6px; font-size: 0.85em; color: #856404;">
+                            <strong>💡 Privacidad:</strong> Eliminar GPS es recomendado si vas a compartir fotos públicamente.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="info-box" style="margin-top: 15px;">
+                <strong>📸 Sobre los formatos de salida:</strong><br>
+                • <strong>JPG:</strong> Menor tamaño de archivo, ideal para fotos. No soporta transparencia.<br>
+                • <strong>PNG:</strong> Alta calidad, soporta transparencia. Archivos más grandes.<br>
+                • <strong>WebP:</strong> Formato moderno, buena calidad y tamaño. Compatible con navegadores recientes.<br>
+                💡 La calidad no afecta a PNG (formato sin pérdida).
+            </div>
+        </div>
+
+        <!-- Paso 4: Vista Previa -->
+        <div class="step">
+            <div class="step-title">
+                <span class="step-number">4</span>
+                Vista Previa y Procesar
+            </div>
+            
+            <div style="display: flex; gap: 15px; align-items: center; margin-bottom: 20px; flex-wrap: wrap;">
+                <button id="generatePreview" class="btn btn-primary" disabled>
+                    👁️ Generar Vista Previa
+                </button>
+                <button id="processImages" class="btn btn-success" disabled>
+                    💾 Procesar y Descargar ZIP
+                </button>
+                
+                <label style="display: flex; align-items: center; gap: 10px; margin-left: auto; cursor: pointer; padding: 10px 15px; background: white; border: 2px solid #e0e0e0; border-radius: 8px; transition: all 0.3s ease;">
+                    <input type="checkbox" id="autoPreview" checked style="width: 18px; height: 18px; cursor: pointer;">
+                    <span style="font-weight: 600; color: #333;">🔄 Vista previa automática</span>
+                </label>
+            </div>
+            
+            <div id="previewInfo" style="display: none; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 8px; margin-bottom: 15px;">
+                <strong>💡 Vista previa desactivada:</strong> Haz clic en "Generar Vista Previa" para ver cómo quedarán las imágenes, o activa la casilla de arriba para ver cambios en tiempo real.
+            </div>
+            
+            <div id="previewGrid" class="preview-grid"></div>
+            <div id="status"></div>
+        </div>
+        </div><!-- Fin Modo 1 -->
+
+        <!-- Modo 2: Renombrar y Convertir -->
+        <div id="renameConvertMode" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                <div>
+                    <h1>🔄 Renombrar y Convertir Imágenes</h1>
+                    <p class="subtitle">✨ Cambia nombres y formatos de forma individual o por lotes</p>
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button id="backToMode2" class="btn btn-primary" style="background: #6c757d;">
+                        ← Volver al Inicio
+                    </button>
+                    <button id="resetAllMode2" class="btn btn-primary btn-reset" style="white-space: nowrap;">
+                        🔄 Limpiar Todo
+                    </button>
+                </div>
+            </div>
+
+            <!-- Paso 1: Cargar Imágenes -->
+            <div class="step">
+                <div class="step-title">
+                    <span class="step-number">1</span>
+                    Cargar Imágenes
+                </div>
+                <div class="drop-zone" id="renameDropZone">
+                    <p style="font-size: 1.2em; margin-bottom: 10px;">📁 Arrastra imágenes aquí o haz clic para seleccionar</p>
+                    <p style="color: #666; font-size: 0.9em;">Soporta: JPG, PNG, GIF, WebP</p>
+                    <input type="file" id="renameInput" class="file-input" multiple accept="image/*">
+                </div>
+                <div id="renameImagesCount" style="margin-top: 15px;"></div>
+            </div>
+
+            <!-- Paso 2: Configuración por Lotes -->
+            <div class="step" id="batchConfigStep" style="display: none;">
+                <div class="step-title">
+                    <span class="step-number">2</span>
+                    Configuración por Lotes (Opcional)
+                </div>
+                <div class="batch-controls">
+                    <div class="control-group" style="flex: 1; min-width: 200px;">
+                        <label>Patrón de Nombre</label>
+                        <select id="batchPattern">
+                            <option value="keep">Mantener nombres actuales</option>
+                            <option value="restore">Restaurar nombres originales</option>
+                            <option value="sequential">Secuencial (imagen_1, imagen_2...)</option>
+                            <option value="custom">Prefijo personalizado</option>
+                        </select>
+                    </div>
+                    <div class="control-group" id="customPrefixGroup" style="flex: 1; min-width: 200px; display: none;">
+                        <label>Prefijo Personalizado</label>
+                        <input type="text" id="customPrefix" placeholder="Ej: foto_vacaciones">
+                    </div>
+                    <div class="control-group" style="flex: 1; min-width: 150px;">
+                        <label>Formato de Salida</label>
+                        <select id="batchFormat">
+                            <option value="keep">Mantener original</option>
+                            <option value="jpg">JPG</option>
+                            <option value="png">PNG</option>
+                            <option value="webp">WebP</option>
+                        </select>
+                    </div>
+                    <div class="control-group" style="flex: 1; min-width: 150px;">
+                        <label>Calidad (%)</label>
+                        <input type="range" id="batchQuality" min="60" max="100" value="95">
+                        <span id="batchQualityValue" style="text-align: center; color: #667eea; font-weight: 600;">95%</span>
+                    </div>
+                    <button id="applyBatch" class="btn btn-primary">
+                        ✨ Aplicar a Todas
+                    </button>
+                </div>
+                <div class="info-box" style="margin-top: 10px; font-size: 0.9em;">
+                    <strong>💡 Patrones de nombre:</strong><br>
+                    • <strong>Mantener actuales:</strong> No cambia los nombres que ves en la lista (respeta ediciones manuales)<br>
+                    • <strong>Restaurar originales:</strong> Vuelve a los nombres originales de los archivos subidos<br>
+                    • <strong>Secuencial/Personalizado:</strong> Aplica un nuevo patrón automático a todas
+                </div>
+                <div style="margin-top: 15px; padding: 15px; background: #e3f2fd; border-left: 4px solid #2196f3; border-radius: 8px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                        <span style="font-weight: 600; color: #333;">📍 Gestión de Metadatos EXIF</span>
+                        <select id="exifModeMode2" style="padding: 8px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 0.9em;">
+                            <option value="keep">Preservar todos</option>
+                            <option value="remove_gps">Solo eliminar GPS</option>
+                            <option value="remove_all">Eliminar todos</option>
+                        </select>
+                    </div>
+                    <p style="margin: 5px 0 0 0; color: #666; font-size: 0.85em;">
+                        Para privacidad, selecciona "Solo eliminar GPS" al compartir fotos públicamente (solo JPG).
+                    </p>
+                </div>
+            </div>
+
+            <!-- Paso 3: Lista de Imágenes -->
+            <div class="step" id="renameListStep" style="display: none;">
+                <div class="step-title">
+                    <span class="step-number">3</span>
+                    Editar Nombres y Formatos Individualmente
+                </div>
+                <div id="renameList" class="rename-list"></div>
+            </div>
+
+            <!-- Paso 4: Procesar -->
+            <div class="step" id="renameProcessStep" style="display: none;">
+                <div class="step-title">
+                    <span class="step-number">4</span>
+                    Procesar y Descargar
+                </div>
+                <button id="processRename" class="btn btn-success" style="font-size: 1.1em; padding: 15px 30px;">
+                    💾 Procesar y Descargar ZIP
+                </button>
+                <div id="renameStatus" style="margin-top: 20px;"></div>
+            </div>
+        </div><!-- Fin Modo 2 -->
+
+    </div>
+
+    <script>
+        // ========== GESTIÓN DE MODOS ==========
+        const modeSelection = document.getElementById('modeSelection');
+        const addTextMode = document.getElementById('addTextMode');
+        const renameConvertMode = document.getElementById('renameConvertMode');
+        const backToMode1Btn = document.getElementById('backToMode1');
+        const backToMode2Btn = document.getElementById('backToMode2');
+
+        function selectMode(mode) {
+            modeSelection.style.display = 'none';
+            if (mode === 'addText') {
+                addTextMode.style.display = 'block';
+                renameConvertMode.style.display = 'none';
+            } else if (mode === 'renameConvert') {
+                addTextMode.style.display = 'none';
+                renameConvertMode.style.display = 'block';
+            }
+        }
+
+        function backToModeSelection() {
+            modeSelection.style.display = 'block';
+            addTextMode.style.display = 'none';
+            renameConvertMode.style.display = 'none';
+            // Limpiar ambos modos
+            if (typeof resetAll === 'function') resetAll();
+            if (typeof resetAllMode2 === 'function') resetAllMode2();
+        }
+
+        backToMode1Btn.addEventListener('click', backToModeSelection);
+        backToMode2Btn.addEventListener('click', backToModeSelection);
+
+        // ========== MODO 1: AÑADIR TEXTO (código existente) ==========
+        let images = [];
+        let csvData = [];
+        let textMapping = {};
+        let detectedEncoding = 'unknown';
+        let textSource = 'csv'; // 'csv', 'filename', 'both'
+
+        // Elementos del DOM
+        const imageDropZone = document.getElementById('imageDropZone');
+        const imageInput = document.getElementById('imageInput');
+        const csvDropZone = document.getElementById('csvDropZone');
+        const csvInput = document.getElementById('csvInput');
+        const csvDropZoneBoth = document.getElementById('csvDropZoneBoth');
+        const csvInputBoth = document.getElementById('csvInputBoth');
+        const imageList = document.getElementById('imageList');
+        const csvPreview = document.getElementById('csvPreview');
+        const previewGrid = document.getElementById('previewGrid');
+        const generatePreviewBtn = document.getElementById('generatePreview');
+        const processImagesBtn = document.getElementById('processImages');
+        const downloadTemplateBtn = document.getElementById('downloadTemplate');
+        const downloadTemplateBothBtn = document.getElementById('downloadTemplateBoth');
+        const status = document.getElementById('status');
+        const autoPreviewCheckbox = document.getElementById('autoPreview');
+        const previewInfo = document.getElementById('previewInfo');
+        const renameWithTextCheckbox = document.getElementById('renameWithText');
+        const resetAllBtn = document.getElementById('resetAll');
+        
+        // Controles de metadatos EXIF
+        const exifMode = document.getElementById('exifMode');
+        const exifCustomOptions = document.getElementById('exifCustomOptions');
+        const removeGPS = document.getElementById('removeGPS');
+        const removeDateTime = document.getElementById('removeDateTime');
+        const removeCamera = document.getElementById('removeCamera');
+        const removeCopyright = document.getElementById('removeCopyright');
+        const removeSettings = document.getElementById('removeSettings');
+        
+        // Mostrar/ocultar opciones personalizadas
+        exifMode.addEventListener('change', () => {
+            exifCustomOptions.style.display = exifMode.value === 'custom' ? 'block' : 'none';
+        });
+
+        // Función para limpiar metadatos EXIF selectivamente
+        function cleanExifData(exifData) {
+            if (!exifData) return null;
+            
+            const mode = exifMode.value;
+            
+            // Si es "eliminar todos", retornar null
+            if (mode === 'remove_all') {
+                return null;
+            }
+            
+            // Si es "preservar todos", retornar sin cambios
+            if (mode === 'keep') {
+                return exifData;
+            }
+            
+            // Modo personalizado: eliminar selectivamente
+            if (mode === 'custom') {
+                const cleanedExif = JSON.parse(JSON.stringify(exifData)); // Copia profunda
+                
+                // Eliminar GPS
+                if (removeGPS.checked && cleanedExif.GPS) {
+                    delete cleanedExif.GPS;
+                }
+                
+                // Eliminar fecha y hora
+                if (removeDateTime.checked && cleanedExif['Exif']) {
+                    delete cleanedExif['Exif'][piexif.ExifIFD.DateTimeOriginal];
+                    delete cleanedExif['Exif'][piexif.ExifIFD.DateTimeDigitized];
+                    if (cleanedExif['0th']) {
+                        delete cleanedExif['0th'][piexif.ImageIFD.DateTime];
+                    }
+                }
+                
+                // Eliminar información de cámara
+                if (removeCamera.checked) {
+                    if (cleanedExif['0th']) {
+                        delete cleanedExif['0th'][piexif.ImageIFD.Make];
+                        delete cleanedExif['0th'][piexif.ImageIFD.Model];
+                    }
+                    if (cleanedExif['Exif']) {
+                        delete cleanedExif['Exif'][piexif.ExifIFD.LensModel];
+                        delete cleanedExif['Exif'][piexif.ExifIFD.LensMake];
+                    }
+                }
+                
+                // Eliminar copyright y autor
+                if (removeCopyright.checked && cleanedExif['0th']) {
+                    delete cleanedExif['0th'][piexif.ImageIFD.Copyright];
+                    delete cleanedExif['0th'][piexif.ImageIFD.Artist];
+                }
+                
+                // Eliminar configuración de foto
+                if (removeSettings.checked && cleanedExif['Exif']) {
+                    delete cleanedExif['Exif'][piexif.ExifIFD.ISOSpeedRatings];
+                    delete cleanedExif['Exif'][piexif.ExifIFD.FNumber];
+                    delete cleanedExif['Exif'][piexif.ExifIFD.ExposureTime];
+                    delete cleanedExif['Exif'][piexif.ExifIFD.ShutterSpeedValue];
+                    delete cleanedExif['Exif'][piexif.ExifIFD.ApertureValue];
+                    delete cleanedExif['Exif'][piexif.ExifIFD.Flash];
+                    delete cleanedExif['Exif'][piexif.ExifIFD.FocalLength];
+                }
+                
+                return cleanedExif;
+            }
+            
+            return exifData;
+        }
+
+        // Función para limpiar texto y convertirlo en nombre de archivo válido
+        function sanitizeFilename(text) {
+            // Reemplazar caracteres no válidos en nombres de archivo
+            let cleaned = text
+                .replace(/[<>:"/\\|?*\x00-\x1F]/g, '') // Caracteres prohibidos
+                .replace(/\s+/g, '_') // Espacios por guiones bajos
+                .replace(/_{2,}/g, '_') // Múltiples guiones bajos por uno solo
+                .trim();
+            
+            // Limitar longitud (máximo 100 caracteres)
+            if (cleaned.length > 100) {
+                cleaned = cleaned.substring(0, 100);
+            }
+            
+            // Si queda vacío, usar un nombre genérico
+            if (!cleaned) {
+                cleaned = 'imagen';
+            }
+            
+            return cleaned;
+        }
+
+        // Función para extraer EXIF de una imagen
+        function extractExif(dataUrl) {
+            try {
+                if (typeof piexif !== 'undefined') {
+                    return piexif.load(dataUrl);
+                }
+            } catch (e) {
+                console.log('No se pudieron extraer metadatos EXIF:', e);
+            }
+            return null;
+        }
+
+        // Función para resetear todo
+        function resetAll() {
+            // Confirmar con el usuario
+            if (images.length > 0) {
+                if (!confirm('¿Estás seguro de que quieres limpiar todo? Se perderán las imágenes y configuraciones actuales.')) {
+                    return;
+                }
+            }
+
+            // Limpiar arrays y objetos
+            images = [];
+            csvData = [];
+            textMapping = {};
+            lastCSVFile = null;
+
+            // Limpiar inputs de archivos
+            imageInput.value = '';
+            csvInput.value = '';
+            csvInputBoth.value = '';
+
+            // Limpiar drop zones
+            imageDropZone.classList.remove('has-files');
+            csvDropZone.classList.remove('has-files');
+            csvDropZoneBoth.classList.remove('has-files');
+
+            // Limpiar listas y previews
+            imageList.innerHTML = '';
+            csvPreview.innerHTML = '';
+            previewGrid.innerHTML = '';
+            manualInputs.innerHTML = '';
+            status.style.display = 'none';
+            previewInfo.style.display = 'none';
+
+            // Resetear fuente de texto al modo CSV
+            sourceCSV.checked = true;
+            updateTextSource();
+
+            // Resetear delimitador a coma
+            delimiterComma.checked = true;
+            customDelimiterInput.value = '';
+
+            // Resetear controles de texto
+            controls.positionY.value = 'top';
+            controls.positionX.value = 'center';
+            controls.fontSize.value = 48;
+            controls.textColor.value = '#ffffff';
+            controls.textStroke.value = 3;
+            controls.strokeColor.value = '#000000';
+            controls.bgColor.value = '#000000';
+            controls.bgOpacity.value = 0;
+            opacityValue.textContent = '0% (Transparente)';
+            controls.padding.value = 20;
+            controls.fontFamily.value = 'Arial';
+
+            // Resetear controles de salida
+            controls.outputFormat.value = 'jpg';
+            controls.outputQuality.value = 95;
+            qualityValue.textContent = '95%';
+            qualityValue.parentElement.style.opacity = '1';
+
+            // Resetear checkboxes
+            autoPreviewCheckbox.checked = true;
+            renameWithTextCheckbox.checked = false;
+            
+            // Resetear gestión de EXIF
+            exifMode.value = 'keep';
+            exifCustomOptions.style.display = 'none';
+            removeGPS.checked = false;
+            removeDateTime.checked = false;
+            removeCamera.checked = false;
+            removeCopyright.checked = false;
+            removeSettings.checked = false;
+
+            // Deshabilitar botones
+            generatePreviewBtn.disabled = true;
+            processImagesBtn.disabled = true;
+
+            // Mostrar mensaje de confirmación
+            showStatus('✅ Todo limpiado. ¡Listo para procesar nuevas imágenes!', 'success');
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 3000);
+        }
+
+        // Event listener para el botón de reset
+        resetAllBtn.addEventListener('click', resetAll);
+
+        // Secciones
+        const csvSection = document.getElementById('csvSection');
+        const filenameSection = document.getElementById('filenameSection');
+        const manualSection = document.getElementById('manualSection');
+        const bothSection = document.getElementById('bothSection');
+        const delimiterSection = document.getElementById('delimiterSection');
+        const manualInputs = document.getElementById('manualInputs');
+
+        // Radio buttons
+        const sourceCSV = document.getElementById('sourceCSV');
+        const sourceManual = document.getElementById('sourceManual');
+        const sourceFilename = document.getElementById('sourceFilename');
+        const sourceBoth = document.getElementById('sourceBoth');
+
+        // Delimitadores
+        const delimiterComma = document.getElementById('delimiterComma');
+        const delimiterSemicolon = document.getElementById('delimiterSemicolon');
+        const delimiterTab = document.getElementById('delimiterTab');
+        const delimiterPipe = document.getElementById('delimiterPipe');
+        const delimiterCustom = document.getElementById('delimiterCustom');
+        const customDelimiterInput = document.getElementById('customDelimiter');
+
+        // Habilitar input personalizado cuando se selecciona
+        delimiterCustom.addEventListener('change', () => {
+            if (delimiterCustom.checked) {
+                customDelimiterInput.focus();
+            }
+        });
+
+        customDelimiterInput.addEventListener('input', () => {
+            if (customDelimiterInput.value) {
+                delimiterCustom.checked = true;
+            }
+        });
+
+        // Recargar CSV cuando cambie el delimitador
+        let lastCSVFile = null;
+        
+        delimiterComma.addEventListener('change', reloadCSVWithNewDelimiter);
+        delimiterSemicolon.addEventListener('change', reloadCSVWithNewDelimiter);
+        delimiterTab.addEventListener('change', reloadCSVWithNewDelimiter);
+        delimiterPipe.addEventListener('change', reloadCSVWithNewDelimiter);
+        delimiterCustom.addEventListener('change', reloadCSVWithNewDelimiter);
+        customDelimiterInput.addEventListener('change', reloadCSVWithNewDelimiter);
+
+        function reloadCSVWithNewDelimiter() {
+            if (lastCSVFile) {
+                showStatus('🔄 Recargando CSV con nuevo delimitador...', 'processing');
+                handleCSVFile(lastCSVFile);
+                
+                // Regenerar vista previa si está activada
+                setTimeout(() => {
+                    if (autoPreviewCheckbox.checked && images.length > 0 && Object.keys(textMapping).length > 0) {
+                        generatePreviews();
+                    }
+                }, 100);
+            }
+        }
+
+        // Controles
+        const controls = {
+            positionY: document.getElementById('positionY'),
+            positionX: document.getElementById('positionX'),
+            fontSize: document.getElementById('fontSize'),
+            textColor: document.getElementById('textColor'),
+            textStroke: document.getElementById('textStroke'),
+            strokeColor: document.getElementById('strokeColor'),
+            bgColor: document.getElementById('bgColor'),
+            bgOpacity: document.getElementById('bgOpacity'),
+            padding: document.getElementById('padding'),
+            fontFamily: document.getElementById('fontFamily'),
+            outputFormat: document.getElementById('outputFormat'),
+            outputQuality: document.getElementById('outputQuality')
+        };
+
+        const opacityValue = document.getElementById('opacityValue');
+        const qualityValue = document.getElementById('qualityValue');
+
+        // Actualizar valor de opacidad
+        controls.bgOpacity.addEventListener('input', (e) => {
+            const value = e.target.value;
+            if (value == 0) {
+                opacityValue.textContent = '0% (Transparente)';
+            } else {
+                opacityValue.textContent = value + '%';
+            }
+        });
+
+        // Actualizar valor de calidad
+        controls.outputQuality.addEventListener('input', (e) => {
+            qualityValue.textContent = e.target.value + '%';
+        });
+
+        // Actualizar texto de calidad cuando cambia el formato
+        controls.outputFormat.addEventListener('change', (e) => {
+            const format = e.target.value;
+            if (format === 'png') {
+                qualityValue.parentElement.style.opacity = '0.5';
+                qualityValue.parentElement.title = 'PNG es sin pérdida, la calidad no aplica';
+            } else {
+                qualityValue.parentElement.style.opacity = '1';
+                qualityValue.parentElement.title = '';
+            }
+        });
+
+        // Cambiar fuente de texto
+        function updateTextSource() {
+            textSource = document.querySelector('input[name="textSource"]:checked').value;
+            
+            csvSection.style.display = textSource === 'csv' ? 'block' : 'none';
+            manualSection.style.display = textSource === 'manual' ? 'block' : 'none';
+            filenameSection.style.display = textSource === 'filename' ? 'block' : 'none';
+            bothSection.style.display = textSource === 'both' ? 'block' : 'none';
+            
+            // Mostrar selector de delimitador solo para CSV y Both
+            delimiterSection.style.display = (textSource === 'csv' || textSource === 'both') ? 'block' : 'none';
+            
+            // Si es modo manual y hay imágenes, generar inputs
+            if (textSource === 'manual' && images.length > 0) {
+                generateManualInputs();
+            }
+            
+            // Actualizar mapeo de texto
+            updateTextMapping();
+            checkReadyState();
+            
+            // Regenerar vista previa si está activada
+            if (autoPreviewCheckbox.checked && images.length > 0 && Object.keys(textMapping).length > 0) {
+                generatePreviews();
+            }
+        }
+
+        sourceCSV.addEventListener('change', updateTextSource);
+        sourceManual.addEventListener('change', updateTextSource);
+        sourceFilename.addEventListener('change', updateTextSource);
+        sourceBoth.addEventListener('change', updateTextSource);
+
+        // Event Listeners para actualizar vista previa automáticamente
+        Object.values(controls).forEach(control => {
+            control.addEventListener('change', () => {
+                if (autoPreviewCheckbox.checked && images.length > 0 && Object.keys(textMapping).length > 0) {
+                    generatePreviews();
+                }
+            });
+        });
+
+        // Listener para cuando se active/desactive la vista previa automática
+        autoPreviewCheckbox.addEventListener('change', () => {
+            if (autoPreviewCheckbox.checked) {
+                previewGrid.style.display = 'grid';
+                previewInfo.style.display = 'none';
+                if (images.length > 0 && Object.keys(textMapping).length > 0) {
+                    generatePreviews();
+                }
+            } else {
+                previewGrid.style.display = 'none';
+                previewGrid.innerHTML = '';
+                if (images.length > 0 && Object.keys(textMapping).length > 0) {
+                    previewInfo.style.display = 'block';
+                }
+            }
+        });
+
+        // Descargar plantilla CSV
+        downloadTemplateBtn.addEventListener('click', downloadCSVTemplate);
+        downloadTemplateBothBtn.addEventListener('click', downloadCSVTemplateBoth);
+
+        function getSelectedDelimiter() {
+            const selectedDelimiter = document.querySelector('input[name="delimiter"]:checked');
+            if (selectedDelimiter) {
+                if (selectedDelimiter.value === 'custom') {
+                    return customDelimiterInput.value || ',';
+                } else {
+                    return selectedDelimiter.value;
+                }
+            }
+            return ',';
+        }
+
+        function getDelimiterName(delimiter) {
+            const names = {
+                ',': 'coma',
+                ';': 'punto_y_coma',
+                '\t': 'tab',
+                '|': 'pipe'
+            };
+            return names[delimiter] || 'personalizado';
+        }
+
+        function downloadCSVTemplate() {
+            const delimiter = getSelectedDelimiter();
+            const delimiterName = getDelimiterName(delimiter);
+            
+            const csvContent = `Nombre_Archivo${delimiter}Texto\n` +
+                `imagen1.jpg${delimiter}¡Hola Mundo!\n` +
+                `imagen2.png${delimiter}Año 2024\n` +
+                `foto3.jpg${delimiter}Celebración\n` +
+                `vacaciones.png${delimiter}¿Qué tal?\n` +
+                `evento.jpg${delimiter}Niño pequeño\n`;
+            
+            downloadCSV(csvContent, `plantilla_utf8_${delimiterName}.csv`);
+        }
+
+        function downloadCSVTemplateBoth() {
+            const delimiter = getSelectedDelimiter();
+            const delimiterName = getDelimiterName(delimiter);
+            
+            const csvContent = `Nombre_Archivo${delimiter}Texto\n` +
+                `imagen1.jpg${delimiter}Foto: {filename}\n` +
+                `imagen2.png${delimiter}Año 2024 - {filename}\n` +
+                `foto3.jpg${delimiter}{filename} - Celebración\n` +
+                `vacaciones.png${delimiter}{filename}\n` +
+                `evento.jpg${delimiter}Evento: {filename}\n`;
+            
+            downloadCSV(csvContent, `plantilla_combinada_utf8_${delimiterName}.csv`);
+        }
+
+        function downloadCSV(content, filename) {
+            const BOM = '\uFEFF'; // UTF-8 BOM para Excel
+            const blob = new Blob([BOM + content], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            const delimiter = getSelectedDelimiter();
+            const delimiterNames = {
+                ',': 'coma (,)',
+                ';': 'punto y coma (;)',
+                '\t': 'tabulación (Tab)',
+                '|': 'barra vertical (|)'
+            };
+            const delimiterDisplay = delimiterNames[delimiter] || `personalizado (${delimiter})`;
+            
+            showStatus(`✅ Plantilla descargada con delimitador: ${delimiterDisplay}. Recuerda guardarla como UTF-8 después de editarla.`, 'success');
+        }
+
+        // Drop zone para imágenes
+        imageDropZone.addEventListener('click', () => imageInput.click());
+        imageDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            imageDropZone.classList.add('drag-over');
+        });
+        imageDropZone.addEventListener('dragleave', () => {
+            imageDropZone.classList.remove('drag-over');
+        });
+        imageDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            imageDropZone.classList.remove('drag-over');
+            handleImageFiles(e.dataTransfer.files);
+        });
+        imageInput.addEventListener('change', (e) => {
+            handleImageFiles(e.target.files);
+        });
+
+        // Drop zone para CSV (modo CSV)
+        csvDropZone.addEventListener('click', () => csvInput.click());
+        csvDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            csvDropZone.classList.add('drag-over');
+        });
+        csvDropZone.addEventListener('dragleave', () => {
+            csvDropZone.classList.remove('drag-over');
+        });
+        csvDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            csvDropZone.classList.remove('drag-over');
+            if (e.dataTransfer.files[0]) {
+                handleCSVFile(e.dataTransfer.files[0]);
+            }
+        });
+        csvInput.addEventListener('change', (e) => {
+            if (e.target.files[0]) {
+                handleCSVFile(e.target.files[0]);
+            }
+        });
+
+        // Drop zone para CSV (modo both)
+        csvDropZoneBoth.addEventListener('click', () => csvInputBoth.click());
+        csvDropZoneBoth.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            csvDropZoneBoth.classList.add('drag-over');
+        });
+        csvDropZoneBoth.addEventListener('dragleave', () => {
+            csvDropZoneBoth.classList.remove('drag-over');
+        });
+        csvDropZoneBoth.addEventListener('drop', (e) => {
+            e.preventDefault();
+            csvDropZoneBoth.classList.remove('drag-over');
+            if (e.dataTransfer.files[0]) {
+                handleCSVFile(e.dataTransfer.files[0]);
+            }
+        });
+        csvInputBoth.addEventListener('change', (e) => {
+            if (e.target.files[0]) {
+                handleCSVFile(e.target.files[0]);
+            }
+        });
+
+        // Procesar imágenes
+        function handleImageFiles(files) {
+            images = [];
+            const fileArray = Array.from(files);
+            
+            let loadedCount = 0;
+            fileArray.forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const imageData = {
+                            name: file.name,
+                            data: e.target.result,
+                            exifData: null
+                        };
+                        
+                        // Intentar extraer EXIF si es JPG
+                        try {
+                            if (file.type === 'image/jpeg' || file.type === 'image/jpg') {
+                                imageData.exifData = piexif.load(e.target.result);
+                            }
+                        } catch (exifError) {
+                            console.log('No se pudieron leer metadatos EXIF de', file.name);
+                        }
+                        
+                        images.push(imageData);
+                        loadedCount++;
+                        
+                        if (loadedCount === fileArray.filter(f => f.type.startsWith('image/')).length) {
+                            updateImageList();
+                            
+                            // Si está en modo manual, generar inputs
+                            if (textSource === 'manual') {
+                                generateManualInputs();
+                            }
+                            
+                            updateTextMapping();
+                            checkReadyState();
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            imageDropZone.classList.add('has-files');
+        }
+
+        function updateImageList() {
+            imageList.innerHTML = `
+                <div style="margin-top: 15px; padding: 10px; background: #d4edda; border-radius: 8px; color: #155724;">
+                    ✅ ${images.length} imagen(es) cargada(s)
+                </div>
+                <div class="file-list">
+                    ${images.map(img => `
+                        <div class="file-item">
+                            <span>📷 ${img.name}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        // Actualizar mapeo de texto según fuente seleccionada
+        function updateTextMapping() {
+            textMapping = {};
+
+            if (textSource === 'filename') {
+                // Usar nombre de archivo sin extensión
+                images.forEach(img => {
+                    const nameWithoutExt = img.name.replace(/\.[^.]+$/, '');
+                    textMapping[img.name] = nameWithoutExt;
+                });
+
+                if (images.length > 0) {
+                    displayFilenamePreview();
+                }
+            } else if (textSource === 'manual') {
+                // Usar textos ingresados manualmente
+                images.forEach(img => {
+                    const input = document.getElementById(`manual-text-${img.name}`);
+                    if (input && input.value) {
+                        textMapping[img.name] = input.value;
+                    }
+                });
+            } else if (textSource === 'csv' && csvData.length > 0) {
+                // Usar datos del CSV
+                csvData.forEach(row => {
+                    if (row.Nombre_Archivo && row.Texto) {
+                        textMapping[row.Nombre_Archivo.trim()] = row.Texto.trim();
+                    }
+                });
+            } else if (textSource === 'both' && csvData.length > 0) {
+                // Combinar CSV con nombre de archivo
+                csvData.forEach(row => {
+                    if (row.Nombre_Archivo && row.Texto) {
+                        const nameWithoutExt = row.Nombre_Archivo.replace(/\.[^.]+$/, '');
+                        let text = row.Texto.trim();
+                        // Reemplazar {filename} con el nombre sin extensión
+                        text = text.replace(/\{filename\}/g, nameWithoutExt);
+                        textMapping[row.Nombre_Archivo.trim()] = text;
+                    }
+                });
+            }
+        }
+
+        // Generar inputs manuales para cada imagen
+        function generateManualInputs() {
+            manualInputs.innerHTML = '';
+            
+            if (images.length === 0) {
+                manualInputs.innerHTML = '<p style="color: #666; text-align: center; padding: 20px;">Primero sube tus imágenes</p>';
+                return;
+            }
+
+            images.forEach(img => {
+                const item = document.createElement('div');
+                item.className = 'manual-input-item';
+                
+                item.innerHTML = `
+                    <img src="${img.data}" alt="${img.name}">
+                    <div class="manual-input-content">
+                        <label>${img.name}</label>
+                        <input 
+                            type="text" 
+                            id="manual-text-${img.name}" 
+                            placeholder="Escribe el texto para esta imagen..."
+                            value="${textMapping[img.name] || ''}"
+                        >
+                    </div>
+                `;
+                
+                manualInputs.appendChild(item);
+                
+                // Añadir listener para actualizar el mapeo en tiempo real
+                const input = item.querySelector('input');
+                input.addEventListener('input', () => {
+                    updateTextMapping();
+                    checkReadyState();
+                });
+            });
+
+            showStatus(`✍️ Escribe el texto para cada una de las ${images.length} imágenes`, 'processing');
+        }
+
+        function displayFilenamePreview() {
+            const previewData = images.slice(0, 5);
+            
+            csvPreview.innerHTML = `
+                <div style="margin-top: 15px; padding: 10px; background: #d4edda; border-radius: 8px; color: #155724;">
+                    ✅ Modo nombre de archivo: ${images.length} imagen(es) lista(s)
+                </div>
+                <table class="csv-table">
+                    <thead>
+                        <tr>
+                            <th>Nombre de Archivo</th>
+                            <th>Texto Generado</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${previewData.map(img => {
+                            const nameWithoutExt = img.name.replace(/\.[^.]+$/, '');
+                            return `
+                                <tr>
+                                    <td>${img.name}</td>
+                                    <td>${nameWithoutExt}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+                ${images.length > 5 ? `<p style="margin-top: 10px; color: #666; font-size: 0.9em;">... y ${images.length - 5} más</p>` : ''}
+            `;
+        }
+
+        // Detectar encoding del CSV
+        function detectEncoding(text) {
+            // Buscar caracteres problemáticos comunes
+            const hasUTF8Chars = /[áéíóúñÁÉÍÓÚÑ¿¡]/.test(text);
+            const hasGarbledChars = /[Ã¡Ã©Ã­Ã³ÃºÃ±]/.test(text);
+            
+            if (hasGarbledChars) {
+                return 'iso-8859-1'; // Probablemente mal interpretado
+            } else if (hasUTF8Chars) {
+                return 'utf-8';
+            }
+            return 'utf-8'; // Por defecto
+        }
+
+        // Procesar CSV con múltiples encodings
+        function handleCSVFile(file) {
+            lastCSVFile = file; // Guardar para poder recargar
+            
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                let csvText = e.target.result;
+                detectedEncoding = detectEncoding(csvText);
+                
+                // Si detectamos problemas, intentar recodificar
+                if (detectedEncoding === 'iso-8859-1') {
+                    showStatus('⚠️ Detectamos problemas de encoding. Intentando corregir...', 'warning');
+                    
+                    // Intentar leer con ISO-8859-1
+                    const readerISO = new FileReader();
+                    readerISO.onload = (e2) => {
+                        parseCSV(e2.target.result, 'iso-8859-1');
+                    };
+                    readerISO.readAsText(file, 'ISO-8859-1');
+                } else {
+                    parseCSV(csvText, 'utf-8');
+                }
+            };
+            
+            reader.readAsText(file, 'UTF-8');
+        }
+
+        function parseCSV(csvText, encoding) {
+            // Obtener el delimitador seleccionado
+            let delimiter = ',';
+            const selectedDelimiter = document.querySelector('input[name="delimiter"]:checked');
+            
+            if (selectedDelimiter) {
+                if (selectedDelimiter.value === 'custom') {
+                    delimiter = customDelimiterInput.value || ',';
+                } else {
+                    delimiter = selectedDelimiter.value;
+                }
+            }
+            
+            Papa.parse(csvText, {
+                header: true,
+                skipEmptyLines: true,
+                delimiter: delimiter,
+                complete: (results) => {
+                    csvData = results.data;
+                    updateTextMapping();
+                    displayCSVPreview(encoding, delimiter);
+                    checkReadyState();
+                    csvDropZone.classList.add('has-files');
+                    csvDropZoneBoth.classList.add('has-files');
+                },
+                error: (error) => {
+                    showStatus('❌ Error al leer el CSV: ' + error.message + '<br>💡 Intenta cambiar el delimitador', 'error');
+                }
+            });
+        }
+
+        function displayCSVPreview(encoding, delimiter) {
+            const previewData = csvData.slice(0, 5);
+            const hasAccents = csvData.some(row => /[áéíóúñÁÉÍÓÚÑ¿¡]/.test(row.Texto || ''));
+            
+            const encodingBadge = encoding === 'utf-8' 
+                ? '<span class="encoding-badge utf8">✅ UTF-8 Detectado</span>'
+                : '<span class="encoding-badge other">⚠️ ' + encoding.toUpperCase() + '</span>';
+            
+            // Mostrar el delimitador usado
+            const delimiterNames = {
+                ',': 'Coma (,)',
+                ';': 'Punto y coma (;)',
+                '\t': 'Tabulación (Tab)',
+                '|': 'Barra vertical (|)'
+            };
+            const delimiterName = delimiterNames[delimiter] || `Personalizado (${delimiter})`;
+            const delimiterBadge = `<span class="encoding-badge utf8">🔧 ${delimiterName}</span>`;
+            
+            // Detectar columnas adicionales
+            const allColumns = csvData.length > 0 ? Object.keys(csvData[0]) : [];
+            const extraColumns = allColumns.filter(col => col !== 'Nombre_Archivo' && col !== 'Texto');
+            const hasExtraColumns = extraColumns.length > 0;
+            
+            let previewRows = '';
+            if (textSource === 'both') {
+                previewRows = previewData.map(row => {
+                    const nameWithoutExt = (row.Nombre_Archivo || '').replace(/\.[^.]+$/, '');
+                    const processedText = (row.Texto || '').replace(/\{filename\}/g, nameWithoutExt);
+                    return `
+                        <tr>
+                            <td>${row.Nombre_Archivo || ''}</td>
+                            <td>${row.Texto || ''}</td>
+                            <td style="background: #e8f5e9; font-weight: 600;">${processedText}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } else {
+                previewRows = previewData.map(row => `
+                    <tr>
+                        <td>${row.Nombre_Archivo || ''}</td>
+                        <td>${row.Texto || ''}</td>
+                    </tr>
+                `).join('');
+            }
+            
+            // Mensaje sobre columnas adicionales
+            let extraColumnsMsg = '';
+            if (hasExtraColumns) {
+                extraColumnsMsg = `
+                    <div style="margin-top: 10px; padding: 10px; background: #e3f2fd; border-left: 4px solid #2196f3; border-radius: 4px;">
+                        <strong>ℹ️ Columnas adicionales detectadas:</strong> ${extraColumns.join(', ')}<br>
+                        Estas columnas se ignorarán. Solo se usarán <code>Nombre_Archivo</code> y <code>Texto</code>.
+                    </div>
+                `;
+            }
+            
+            csvPreview.innerHTML = `
+                <div style="margin-top: 15px; padding: 10px; background: #d4edda; border-radius: 8px; color: #155724;">
+                    ✅ CSV cargado: ${csvData.length} entrada(s) ${encodingBadge} ${delimiterBadge}
+                    ${hasAccents ? '<br>🎉 Acentos detectados correctamente' : ''}
+                </div>
+                ${extraColumnsMsg}
+                <table class="csv-table">
+                    <thead>
+                        <tr>
+                            <th>Nombre de Archivo</th>
+                            <th>Texto${textSource === 'both' ? ' (CSV)' : ''}</th>
+                            ${textSource === 'both' ? '<th>Resultado Final</th>' : ''}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${previewRows}
+                    </tbody>
+                </table>
+                ${csvData.length > 5 ? `<p style="margin-top: 10px; color: #666; font-size: 0.9em;">... y ${csvData.length - 5} más</p>` : ''}
+            `;
+        }
+
+        function checkReadyState() {
+            const isReady = images.length > 0 && Object.keys(textMapping).length > 0;
+            generatePreviewBtn.disabled = !isReady;
+            processImagesBtn.disabled = !isReady;
+            
+            // Mostrar mensaje informativo si la vista previa está desactivada y hay contenido listo
+            if (isReady && !autoPreviewCheckbox.checked) {
+                previewInfo.style.display = 'block';
+            } else {
+                previewInfo.style.display = 'none';
+            }
+        }
+
+        // Generar vistas previas
+        generatePreviewBtn.addEventListener('click', generatePreviews);
+
+        function generatePreviews() {
+            // Verificar si la vista previa está desactivada
+            if (!autoPreviewCheckbox.checked) {
+                // Si se hace clic en el botón manualmente, mostrar temporalmente
+                previewGrid.style.display = 'grid';
+            }
+            
+            previewGrid.innerHTML = '';
+            showStatus('Generando vistas previas...', 'processing');
+            
+            let processed = 0;
+            let notFound = [];
+            
+            images.forEach((image) => {
+                const text = textMapping[image.name] || '';
+                
+                if (!text) {
+                    notFound.push(image.name);
+                    return;
+                }
+                
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                
+                img.onload = () => {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    
+                    // Dibujar imagen
+                    ctx.drawImage(img, 0, 0);
+                    
+                    // Añadir texto
+                    addTextToCanvas(ctx, text, canvas.width, canvas.height);
+                    
+                    // Crear preview
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'preview-item';
+                    
+                    const previewCanvas = document.createElement('canvas');
+                    const previewCtx = previewCanvas.getContext('2d');
+                    previewCanvas.className = 'preview-canvas';
+                    previewCanvas.width = 250;
+                    previewCanvas.height = 200;
+                    
+                    const scale = Math.min(250 / img.width, 200 / img.height);
+                    const x = (250 - img.width * scale) / 2;
+                    const y = (200 - img.height * scale) / 2;
+                    
+                    previewCtx.drawImage(canvas, x, y, img.width * scale, img.height * scale);
+                    
+                    previewItem.innerHTML = `
+                        <div class="preview-info">
+                            <div class="preview-name">${image.name}</div>
+                            <div class="preview-text">"${text}"</div>
+                        </div>
+                    `;
+                    previewItem.insertBefore(previewCanvas, previewItem.firstChild);
+                    
+                    previewGrid.appendChild(previewItem);
+                    
+                    processed++;
+                    if (processed === images.filter(img => textMapping[img.name]).length) {
+                        let message = `✅ ${processed} vista(s) previa(s) generada(s)`;
+                        if (notFound.length > 0) {
+                            message += `<br>⚠️ Sin texto: ${notFound.join(', ')}`;
+                        }
+                        showStatus(message, 'success');
+                        
+                        // Si la vista previa está desactivada, ocultar después de 3 segundos
+                        if (!autoPreviewCheckbox.checked) {
+                            setTimeout(() => {
+                                previewGrid.style.display = 'none';
+                            }, 3000);
+                        }
+                    }
+                };
+                
+                img.src = image.data;
+            });
+            
+            if (notFound.length === images.length) {
+                showStatus('❌ Ninguna imagen coincide con el CSV. Verifica los nombres de archivo.', 'error');
+            }
+        }
+
+        function addTextToCanvas(ctx, text, width, height) {
+            const fontSize = parseInt(controls.fontSize.value);
+            const fontFamily = controls.fontFamily.value;
+            const textColor = controls.textColor.value;
+            const strokeWidth = parseInt(controls.textStroke.value);
+            const strokeColor = controls.strokeColor.value;
+            const bgColor = controls.bgColor.value;
+            const bgOpacity = parseInt(controls.bgOpacity.value) / 100;
+            const padding = parseInt(controls.padding.value);
+            const posX = controls.positionX.value;
+            const posY = controls.positionY.value;
+            
+            ctx.font = `bold ${fontSize}px ${fontFamily}`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Medir texto
+            const metrics = ctx.measureText(text);
+            const textWidth = metrics.width;
+            const textHeight = fontSize;
+            
+            // Calcular posición
+            let x = width / 2;
+            if (posX === 'left') x = textWidth / 2 + padding;
+            if (posX === 'right') x = width - textWidth / 2 - padding;
+            
+            let y = height / 2;
+            if (posY === 'top') y = textHeight / 2 + padding;
+            if (posY === 'bottom') y = height - textHeight / 2 - padding;
+            
+            // Dibujar fondo si la opacidad es mayor a 0
+            if (bgOpacity > 0) {
+                ctx.fillStyle = bgColor;
+                ctx.globalAlpha = bgOpacity;
+                ctx.fillRect(
+                    x - textWidth / 2 - padding,
+                    y - textHeight / 2 - padding,
+                    textWidth + padding * 2,
+                    textHeight + padding * 2
+                );
+                ctx.globalAlpha = 1;
+            }
+            
+            // Dibujar borde del texto (si strokeWidth > 0)
+            if (strokeWidth > 0) {
+                ctx.strokeStyle = strokeColor;
+                ctx.lineWidth = strokeWidth;
+                ctx.strokeText(text, x, y);
+            }
+            
+            // Dibujar texto
+            ctx.fillStyle = textColor;
+            ctx.fillText(text, x, y);
+        }
+
+        // Procesar y descargar
+        processImagesBtn.addEventListener('click', async () => {
+            showStatus('Procesando imágenes...', 'processing');
+            processImagesBtn.disabled = true;
+            
+            const outputFormat = controls.outputFormat.value;
+            const outputQuality = parseInt(controls.outputQuality.value) / 100;
+            const shouldRename = renameWithTextCheckbox.checked;
+            
+            // Determinar tipo MIME y extensión
+            const formatConfig = {
+                'jpg': { mime: 'image/jpeg', ext: '.jpg', needsBackground: true },
+                'png': { mime: 'image/png', ext: '.png', needsBackground: false },
+                'webp': { mime: 'image/webp', ext: '.webp', needsBackground: true }
+            };
+            
+            const config = formatConfig[outputFormat];
+            
+            const zip = new JSZip();
+            let processed = 0;
+            
+            // Contador para nombres duplicados
+            const nameCounter = {};
+            
+            for (const image of images) {
+                const text = textMapping[image.name];
+                if (!text) continue;
+                
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                
+                await new Promise((resolve) => {
+                    img.onload = () => {
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        
+                        // Fondo blanco para formatos que no soportan transparencia bien (JPG/WebP)
+                        if (config.needsBackground) {
+                            ctx.fillStyle = '#FFFFFF';
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        }
+                        
+                        ctx.drawImage(img, 0, 0);
+                        addTextToCanvas(ctx, text, canvas.width, canvas.height);
+                        
+                        // Convertir al formato seleccionado
+                        canvas.toBlob(async (blob) => {
+                            let newName;
+                            
+                            if (shouldRename) {
+                                // Usar el texto como nombre de archivo
+                                let baseName = sanitizeFilename(text);
+                                
+                                // Verificar si el nombre ya existe
+                                if (nameCounter[baseName] !== undefined) {
+                                    // Incrementar contador
+                                    nameCounter[baseName]++;
+                                    newName = `${baseName}_${nameCounter[baseName]}${config.ext}`;
+                                } else {
+                                    // Primera vez que aparece este nombre
+                                    nameCounter[baseName] = 0;
+                                    newName = `${baseName}${config.ext}`;
+                                }
+                            } else {
+                                // Mantener el nombre original, solo cambiar extensión
+                                const baseName = image.name.replace(/\.[^.]+$/, '');
+                                newName = baseName + config.ext;
+                            }
+                            
+                            // Insertar metadatos EXIF según configuración y formato JPG
+                            let finalBlob = blob;
+                            const exifModeValue = exifMode.value;
+                            if (exifModeValue !== 'remove_all' && outputFormat === 'jpg' && image.exifData) {
+                                try {
+                                    // Limpiar metadatos según configuración
+                                    const cleanedExif = cleanExifData(image.exifData);
+                                    
+                                    if (cleanedExif) {
+                                        // Convertir blob a base64
+                                        const reader = new FileReader();
+                                        reader.onload = (e) => {
+                                            try {
+                                                // Insertar los metadatos EXIF procesados
+                                                const exifStr = piexif.dump(cleanedExif);
+                                                const newDataUrl = piexif.insert(exifStr, e.target.result);
+                                                
+                                                // Convertir de vuelta a blob
+                                                fetch(newDataUrl)
+                                                    .then(res => res.blob())
+                                                    .then(blobWithExif => {
+                                                        zip.file(newName, blobWithExif);
+                                                        processed++;
+                                                        showStatus(`Procesando: ${processed}/${Object.keys(textMapping).length}`, 'processing');
+                                                        resolve();
+                                                    });
+                                            } catch (exifError) {
+                                                console.log('No se pudieron insertar metadatos EXIF:', exifError);
+                                                // Si falla, usar blob sin EXIF
+                                                zip.file(newName, blob);
+                                                processed++;
+                                                showStatus(`Procesando: ${processed}/${Object.keys(textMapping).length}`, 'processing');
+                                                resolve();
+                                            }
+                                        };
+                                        reader.readAsDataURL(blob);
+                                    } else {
+                                        // No hay metadatos que preservar
+                                        zip.file(newName, blob);
+                                        processed++;
+                                        showStatus(`Procesando: ${processed}/${Object.keys(textMapping).length}`, 'processing');
+                                        resolve();
+                                    }
+                                } catch (err) {
+                                    console.log('Error al procesar EXIF:', err);
+                                    zip.file(newName, blob);
+                                    processed++;
+                                    showStatus(`Procesando: ${processed}/${Object.keys(textMapping).length}`, 'processing');
+                                    resolve();
+                                }
+                            } else {
+                                // Eliminar todos, sin EXIF o formato no JPG
+                                zip.file(newName, finalBlob);
+                                processed++;
+                                showStatus(`Procesando: ${processed}/${Object.keys(textMapping).length}`, 'processing');
+                                resolve();
+                            }
+                        }, config.mime, outputQuality);
+                    };
+                    img.src = image.data;
+                });
+            }
+            
+            // Generar y descargar ZIP
+            showStatus('Generando archivo ZIP...', 'processing');
+            const zipBlob = await zip.generateAsync({ type: 'blob' });
+            const url = URL.createObjectURL(zipBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'imagenes_procesadas.zip';
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            const renameMsg = shouldRename ? ' (renombradas con texto)' : '';
+            showStatus(`✅ ¡Listo! ${processed} imágenes procesadas en formato ${outputFormat.toUpperCase()}${renameMsg}`, 'success');
+            processImagesBtn.disabled = false;
+        });
+
+        function showStatus(message, type) {
+            status.className = `status ${type}`;
+            status.innerHTML = message;
+            status.style.display = 'block';
+        }
+
+        // ========== MODO 2: RENOMBRAR Y CONVERTIR ==========
+        let renameImages = [];
+        
+        // Elementos DOM del modo 2
+        const renameDropZone = document.getElementById('renameDropZone');
+        const renameInput = document.getElementById('renameInput');
+        const renameImagesCount = document.getElementById('renameImagesCount');
+        const batchConfigStep = document.getElementById('batchConfigStep');
+        const renameListStep = document.getElementById('renameListStep');
+        const renameProcessStep = document.getElementById('renameProcessStep');
+        const renameList = document.getElementById('renameList');
+        const processRenameBtn = document.getElementById('processRename');
+        const renameStatus = document.getElementById('renameStatus');
+        const resetAllMode2Btn = document.getElementById('resetAllMode2');
+        const exifModeMode2 = document.getElementById('exifModeMode2');
+        
+        // Controles por lotes
+        const batchPattern = document.getElementById('batchPattern');
+        const customPrefixGroup = document.getElementById('customPrefixGroup');
+        const customPrefix = document.getElementById('customPrefix');
+        const batchFormat = document.getElementById('batchFormat');
+        const batchQuality = document.getElementById('batchQuality');
+        const batchQualityValue = document.getElementById('batchQualityValue');
+        const applyBatchBtn = document.getElementById('applyBatch');
+
+        // Event listeners modo 2
+        renameDropZone.addEventListener('click', () => renameInput.click());
+        renameDropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            renameDropZone.classList.add('drag-over');
+        });
+        renameDropZone.addEventListener('dragleave', () => {
+            renameDropZone.classList.remove('drag-over');
+        });
+        renameDropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            renameDropZone.classList.remove('drag-over');
+            handleRenameFiles(e.dataTransfer.files);
+        });
+        renameInput.addEventListener('change', (e) => {
+            handleRenameFiles(e.target.files);
+        });
+
+        // Actualizar valor de calidad
+        batchQuality.addEventListener('input', (e) => {
+            batchQualityValue.textContent = e.target.value + '%';
+        });
+
+        // Mostrar/ocultar prefijo personalizado
+        batchPattern.addEventListener('change', () => {
+            customPrefixGroup.style.display = batchPattern.value === 'custom' ? 'block' : 'none';
+        });
+
+        // Aplicar configuración por lotes
+        applyBatchBtn.addEventListener('click', applyBatchConfig);
+
+        // Procesar renombrado
+        processRenameBtn.addEventListener('click', processRenaming);
+
+        // Reset modo 2
+        resetAllMode2Btn.addEventListener('click', resetAllMode2);
+
+        function handleRenameFiles(files) {
+            renameImages = [];
+            const fileArray = Array.from(files);
+            
+            let loadedCount = 0;
+            fileArray.forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const ext = file.name.split('.').pop().toLowerCase();
+                        const imageData = e.target.result;
+                        
+                        // Extraer metadatos EXIF si existen
+                        let exifData = null;
+                        try {
+                            if (file.type === 'image/jpeg' || file.type === 'image/jpg') {
+                                exifData = piexif.load(imageData);
+                            }
+                        } catch (exifError) {
+                            console.log('No se pudieron leer metadatos EXIF de', file.name);
+                        }
+                        
+                        renameImages.push({
+                            originalName: file.name,
+                            newName: file.name.replace(/\.[^.]+$/, ''),
+                            format: ext === 'jpeg' ? 'jpg' : ext,
+                            quality: 95,
+                            data: imageData,
+                            exifData: exifData
+                        });
+                        loadedCount++;
+                        
+                        if (loadedCount === fileArray.filter(f => f.type.startsWith('image/')).length) {
+                            updateRenameList();
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            renameDropZone.classList.add('has-files');
+        }
+
+        function updateRenameList() {
+            renameImagesCount.innerHTML = `
+                <div style="padding: 10px; background: #d4edda; border-radius: 8px; color: #155724;">
+                    ✅ ${renameImages.length} imagen(es) cargada(s)
+                </div>
+            `;
+            
+            batchConfigStep.style.display = 'block';
+            renameListStep.style.display = 'block';
+            renameProcessStep.style.display = 'block';
+            
+            displayRenameList();
+        }
+
+        function displayRenameList() {
+            renameList.innerHTML = renameImages.map((img, index) => `
+                <div class="rename-item">
+                    <img src="${img.data}" alt="${img.originalName}">
+                    <div>
+                        <label style="font-size: 0.85em; color: #666; display: block; margin-bottom: 5px;">Nombre Original</label>
+                        <div style="font-weight: 600; color: #333;">${img.originalName}</div>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.85em; color: #666; display: block; margin-bottom: 5px;">Nuevo Nombre</label>
+                        <input 
+                            type="text" 
+                            value="${img.newName}" 
+                            data-index="${index}"
+                            class="rename-name-input"
+                            placeholder="Nombre del archivo"
+                        >
+                    </div>
+                    <div>
+                        <label style="font-size: 0.85em; color: #666; display: block; margin-bottom: 5px;">Formato</label>
+                        <select data-index="${index}" class="rename-format-select">
+                            <option value="jpg" ${img.format === 'jpg' ? 'selected' : ''}>JPG</option>
+                            <option value="png" ${img.format === 'png' ? 'selected' : ''}>PNG</option>
+                            <option value="webp" ${img.format === 'webp' ? 'selected' : ''}>WebP</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.85em; color: #666; display: block; margin-bottom: 5px;">Calidad</label>
+                        <input 
+                            type="number" 
+                            value="${img.quality}" 
+                            min="60" 
+                            max="100"
+                            data-index="${index}"
+                            class="rename-quality-input"
+                            style="width: 80px;"
+                        >%
+                    </div>
+                </div>
+            `).join('');
+            
+            // Añadir event listeners a los inputs
+            document.querySelectorAll('.rename-name-input').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const index = parseInt(e.target.dataset.index);
+                    renameImages[index].newName = e.target.value;
+                });
+            });
+            
+            document.querySelectorAll('.rename-format-select').forEach(select => {
+                select.addEventListener('change', (e) => {
+                    const index = parseInt(e.target.dataset.index);
+                    renameImages[index].format = e.target.value;
+                });
+            });
+            
+            document.querySelectorAll('.rename-quality-input').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const index = parseInt(e.target.dataset.index);
+                    renameImages[index].quality = parseInt(e.target.value);
+                });
+            });
+        }
+
+        function applyBatchConfig() {
+            const pattern = batchPattern.value;
+            const format = batchFormat.value;
+            const quality = parseInt(batchQuality.value);
+            
+            renameImages.forEach((img, index) => {
+                // Aplicar patrón de nombre
+                if (pattern === 'restore') {
+                    // Restaurar al nombre original (sin extensión)
+                    img.newName = img.originalName.replace(/\.[^.]+$/, '');
+                } else if (pattern === 'sequential') {
+                    img.newName = `imagen_${index + 1}`;
+                } else if (pattern === 'custom') {
+                    const prefix = customPrefix.value || 'imagen';
+                    img.newName = `${prefix}_${index + 1}`;
+                }
+                // Si es 'keep', NO cambiamos img.newName, mantiene el valor actual
+                // que puede ser el original o uno ya editado manualmente
+                
+                // Aplicar formato
+                if (format !== 'keep') {
+                    img.format = format;
+                }
+                
+                // Aplicar calidad
+                img.quality = quality;
+            });
+            
+            displayRenameList();
+            
+            let message = '✅ Configuración aplicada a todas las imágenes';
+            if (pattern === 'restore') {
+                message = '✅ Nombres originales restaurados';
+            } else if (pattern === 'keep') {
+                message = '✅ Configuración aplicada (nombres sin cambios)';
+            }
+            showRenameStatus(message, 'success');
+        }
+
+        async function processRenaming() {
+            showRenameStatus('Procesando imágenes...', 'processing');
+            processRenameBtn.disabled = true;
+            
+            const zip = new JSZip();
+            let processed = 0;
+            
+            // Verificar nombres duplicados
+            const nameCount = {};
+            renameImages.forEach(img => {
+                const fullName = `${img.newName}.${img.format}`;
+                nameCount[fullName] = (nameCount[fullName] || 0) + 1;
+            });
+            
+            const hasDuplicates = Object.values(nameCount).some(count => count > 1);
+            if (hasDuplicates) {
+                if (!confirm('⚠️ Hay nombres duplicados. Se añadirá un número al final. ¿Continuar?')) {
+                    processRenameBtn.disabled = false;
+                    showRenameStatus('', '');
+                    return;
+                }
+            }
+            
+            // Contador para duplicados
+            const usedNames = {};
+            
+            for (const imgData of renameImages) {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                
+                await new Promise((resolve) => {
+                    img.onload = () => {
+                        canvas.width = img.width;
+                        canvas.height = img.height;
+                        
+                        // Fondo blanco para JPG/WebP
+                        if (imgData.format === 'jpg' || imgData.format === 'webp') {
+                            ctx.fillStyle = '#FFFFFF';
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        }
+                        
+                        ctx.drawImage(img, 0, 0);
+                        
+                        // Determinar nombre final
+                        let finalName = `${imgData.newName}.${imgData.format}`;
+                        if (usedNames[finalName]) {
+                            usedNames[finalName]++;
+                            finalName = `${imgData.newName}_${usedNames[finalName]}.${imgData.format}`;
+                        } else {
+                            usedNames[finalName] = 0;
+                        }
+                        
+                        // Determinar tipo MIME
+                        const mimeTypes = {
+                            'jpg': 'image/jpeg',
+                            'png': 'image/png',
+                            'webp': 'image/webp'
+                        };
+                        
+                        canvas.toBlob(async (blob) => {
+                            const exifModeValue = exifModeMode2.value;
+                            
+                            // Insertar metadatos EXIF según configuración
+                            if (exifModeValue !== 'remove_all' && imgData.format === 'jpg' && imgData.exifData) {
+                                try {
+                                    let cleanedExif = imgData.exifData;
+                                    
+                                    // Si es "solo eliminar GPS", limpiar GPS
+                                    if (exifModeValue === 'remove_gps' && cleanedExif.GPS) {
+                                        cleanedExif = JSON.parse(JSON.stringify(imgData.exifData));
+                                        delete cleanedExif.GPS;
+                                    }
+                                    
+                                    if (cleanedExif) {
+                                        // Convertir blob a base64
+                                        const reader = new FileReader();
+                                        reader.onload = (e) => {
+                                            try {
+                                                // Insertar los metadatos EXIF procesados
+                                                const exifStr = piexif.dump(cleanedExif);
+                                                const newDataUrl = piexif.insert(exifStr, e.target.result);
+                                                
+                                                // Convertir de vuelta a blob
+                                                fetch(newDataUrl)
+                                                    .then(res => res.blob())
+                                                    .then(blobWithExif => {
+                                                        zip.file(finalName, blobWithExif);
+                                                        processed++;
+                                                        showRenameStatus(`Procesando: ${processed}/${renameImages.length}`, 'processing');
+                                                        resolve();
+                                                    });
+                                            } catch (exifError) {
+                                                console.log('No se pudieron insertar metadatos EXIF:', exifError);
+                                                zip.file(finalName, blob);
+                                                processed++;
+                                                showRenameStatus(`Procesando: ${processed}/${renameImages.length}`, 'processing');
+                                                resolve();
+                                            }
+                                        };
+                                        reader.readAsDataURL(blob);
+                                    } else {
+                                        zip.file(finalName, blob);
+                                        processed++;
+                                        showRenameStatus(`Procesando: ${processed}/${renameImages.length}`, 'processing');
+                                        resolve();
+                                    }
+                                } catch (err) {
+                                    console.log('Error al procesar EXIF:', err);
+                                    zip.file(finalName, blob);
+                                    processed++;
+                                    showRenameStatus(`Procesando: ${processed}/${renameImages.length}`, 'processing');
+                                    resolve();
+                                }
+                            } else {
+                                // Eliminar todos o formato no JPG
+                                zip.file(finalName, blob);
+                                processed++;
+                                showRenameStatus(`Procesando: ${processed}/${renameImages.length}`, 'processing');
+                                resolve();
+                            }
+                        }, mimeTypes[imgData.format], imgData.quality / 100);
+                    };
+                    img.src = imgData.data;
+                });
+            }
+            
+            // Generar y descargar ZIP
+            showRenameStatus('Generando archivo ZIP...', 'processing');
+            const zipBlob = await zip.generateAsync({ type: 'blob' });
+            const url = URL.createObjectURL(zipBlob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'imagenes_renombradas.zip';
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showRenameStatus(`✅ ¡Listo! ${processed} imágenes procesadas y descargadas`, 'success');
+            processRenameBtn.disabled = false;
+        }
+
+        function showRenameStatus(message, type) {
+            renameStatus.className = `status ${type}`;
+            renameStatus.innerHTML = message;
+            renameStatus.style.display = message ? 'block' : 'none';
+        }
+
+        function resetAllMode2() {
+            if (renameImages.length > 0) {
+                if (!confirm('¿Estás seguro de que quieres limpiar todo?')) {
+                    return;
+                }
+            }
+            
+            renameImages = [];
+            renameInput.value = '';
+            renameDropZone.classList.remove('has-files');
+            renameImagesCount.innerHTML = '';
+            renameList.innerHTML = '';
+            renameStatus.style.display = 'none';
+            
+            batchConfigStep.style.display = 'none';
+            renameListStep.style.display = 'none';
+            renameProcessStep.style.display = 'none';
+            
+            batchPattern.value = 'keep';
+            customPrefix.value = '';
+            customPrefixGroup.style.display = 'none';
+            batchFormat.value = 'keep';
+            batchQuality.value = 95;
+            batchQualityValue.textContent = '95%';
+            
+            processRenameBtn.disabled = false;
+            
+            showRenameStatus('✅ Todo limpiado. ¡Listo para procesar nuevas imágenes!', 'success');
+            setTimeout(() => {
+                renameStatus.style.display = 'none';
+            }, 3000);
+        }
+
+        // ========== REGISTRO DE SERVICE WORKER (PWA) ==========
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registrado:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Error al registrar Service Worker:', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
