@@ -42,23 +42,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script></script>
-    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/exif-js/2.3.0/exif.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/piexifjs/1.0.6/piexif.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -719,11 +702,11 @@
                 <label style="font-weight: 600; color: #333; margin-bottom: 10px; display: block;">🔧 Delimitador del CSV</label>
                 <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center;">
                     <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                        <input type="radio" name="delimiter" id="delimiterComma" value="," checked>
+                        <input type="radio" name="delimiter" id="delimiterComma" value=",">
                         <span>Coma (,)</span>
                     </label>
                     <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                        <input type="radio" name="delimiter" id="delimiterSemicolon" value=";">
+                        <input type="radio" name="delimiter" id="delimiterSemicolon" value=";" checked>
                         <span>Punto y coma (;)</span>
                     </label>
                     <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
@@ -843,7 +826,7 @@ foto2.jpg,Cumpleaños,2024-02-20,evento,María,Fiesta</pre>
                 </div>
                 <div class="control-group">
                     <label>Tamaño de Fuente (px)</label>
-                    <input type="number" id="fontSize" value="48" min="12" max="200">
+                    <input type="number" id="fontSize" value="100" min="12" max="200">
                 </div>
                 <div class="control-group">
                     <label>Color del Texto</label>
@@ -1050,8 +1033,8 @@ foto2.jpg,Cumpleaños,2024-02-20,evento,María,Fiesta</pre>
                     </div>
                     <div class="control-group" style="flex: 1; min-width: 150px;">
                         <label>Calidad (%)</label>
-                        <input type="range" id="batchQuality" min="60" max="100" value="95">
-                        <span id="batchQualityValue" style="text-align: center; color: #667eea; font-weight: 600;">95%</span>
+                        <input type="range" id="batchQuality" min="20" max="100" value="50">
+                        <span id="batchQualityValue" style="text-align: center; color: #667eea; font-weight: 600;">50%</span>
                     </div>
                     <button id="applyBatch" class="btn btn-primary">
                         ✨ Aplicar a Todas
@@ -1244,6 +1227,40 @@ foto2.jpg,Cumpleaños,2024-02-20,evento,María,Fiesta</pre>
         }
 
         // Función para limpiar texto y convertirlo en nombre de archivo válido
+        // Función para aplicar la orientación EXIF correcta al canvas
+        // Los valores de orientación EXIF van del 1 al 8:
+        // 1 = normal, 3 = 180°, 6 = 90° CW, 8 = 90° CCW
+        // 2,4,5,7 = versiones espejadas (menos comunes)
+        function applyExifOrientation(canvas, ctx, img, exifData) {
+            const orientation = exifData?.['0th']?.[piexif.ImageIFD.Orientation] ?? 1;
+
+            const w = img.width;
+            const h = img.height;
+
+            // Para orientaciones que rotan 90°/270° intercambiamos ancho y alto
+            if (orientation >= 5) {
+                canvas.width  = h;
+                canvas.height = w;
+            } else {
+                canvas.width  = w;
+                canvas.height = h;
+            }
+
+            ctx.save();
+            switch (orientation) {
+                case 2: ctx.transform(-1,  0,  0,  1, w, 0); break; // espejo horizontal
+                case 3: ctx.transform(-1,  0,  0, -1, w, h); break; // 180°
+                case 4: ctx.transform( 1,  0,  0, -1, 0, h); break; // espejo vertical
+                case 5: ctx.transform( 0,  1,  1,  0, 0, 0); break; // espejo + 90° CW
+                case 6: ctx.transform( 0,  1, -1,  0, h, 0); break; // 90° CW
+                case 7: ctx.transform( 0, -1, -1,  0, h, w); break; // espejo + 90° CCW
+                case 8: ctx.transform( 0, -1,  1,  0, 0, w); break; // 90° CCW
+                default: break; // orientación 1: sin transformación
+            }
+            ctx.drawImage(img, 0, 0);
+            ctx.restore();
+        }
+
         function sanitizeFilename(text) {
             // Reemplazar caracteres no válidos en nombres de archivo
             let cleaned = text
@@ -1314,8 +1331,8 @@ foto2.jpg,Cumpleaños,2024-02-20,evento,María,Fiesta</pre>
             sourceCSV.checked = true;
             updateTextSource();
 
-            // Resetear delimitador a coma
-            delimiterComma.checked = true;
+            // Resetear delimitador a punto y coma
+            delimiterSemicolon.checked = true;
             customDelimiterInput.value = '';
 
             // Resetear controles de texto
@@ -2032,11 +2049,8 @@ foto2.jpg,Cumpleaños,2024-02-20,evento,María,Fiesta</pre>
                 const img = new Image();
                 
                 img.onload = () => {
-                    canvas.width = img.width;
-                    canvas.height = img.height;
-                    
-                    // Dibujar imagen
-                    ctx.drawImage(img, 0, 0);
+                    // Aplicar orientación EXIF correcta
+                    applyExifOrientation(canvas, ctx, img, image.exifData);
                     
                     // Añadir texto
                     addTextToCanvas(ctx, text, canvas.width, canvas.height);
@@ -2181,16 +2195,17 @@ foto2.jpg,Cumpleaños,2024-02-20,evento,María,Fiesta</pre>
                 
                 await new Promise((resolve) => {
                     img.onload = () => {
-                        canvas.width = img.width;
-                        canvas.height = img.height;
-                        
-                        // Fondo blanco para formatos que no soportan transparencia bien (JPG/WebP)
+                        // Aplicar orientación EXIF correcta
+                        applyExifOrientation(canvas, ctx, img, image.exifData);
+
+                        // Fondo blanco para JPG/WebP (dibujado ANTES de la imagen)
                         if (config.needsBackground) {
+                            ctx.globalCompositeOperation = 'destination-over';
                             ctx.fillStyle = '#FFFFFF';
                             ctx.fillRect(0, 0, canvas.width, canvas.height);
+                            ctx.globalCompositeOperation = 'source-over';
                         }
-                        
-                        ctx.drawImage(img, 0, 0);
+
                         addTextToCanvas(ctx, text, canvas.width, canvas.height);
                         
                         // Convertir al formato seleccionado
@@ -2224,6 +2239,11 @@ foto2.jpg,Cumpleaños,2024-02-20,evento,María,Fiesta</pre>
                                 try {
                                     // Limpiar metadatos según configuración
                                     const cleanedExif = cleanExifData(image.exifData);
+                                    
+                                    // Resetear orientación a "normal" porque ya la corregimos en el canvas
+                                    if (cleanedExif && cleanedExif['0th']) {
+                                        cleanedExif['0th'][piexif.ImageIFD.Orientation] = 1;
+                                    }
                                     
                                     if (cleanedExif) {
                                         // Convertir blob a base64
@@ -2389,7 +2409,7 @@ foto2.jpg,Cumpleaños,2024-02-20,evento,María,Fiesta</pre>
                             originalName: file.name,
                             newName: file.name.replace(/\.[^.]+$/, ''),
                             format: ext === 'jpeg' ? 'jpg' : ext,
-                            quality: 95,
+                            quality: 50,
                             data: imageData,
                             exifData: exifData
                         });
@@ -2451,7 +2471,7 @@ foto2.jpg,Cumpleaños,2024-02-20,evento,María,Fiesta</pre>
                         <input 
                             type="number" 
                             value="${img.quality}" 
-                            min="60" 
+                            min="20" 
                             max="100"
                             data-index="${index}"
                             class="rename-quality-input"
@@ -2556,17 +2576,17 @@ foto2.jpg,Cumpleaños,2024-02-20,evento,María,Fiesta</pre>
                 
                 await new Promise((resolve) => {
                     img.onload = () => {
-                        canvas.width = img.width;
-                        canvas.height = img.height;
-                        
+                        // Aplicar orientación EXIF correcta
+                        applyExifOrientation(canvas, ctx, img, imgData.exifData);
+
                         // Fondo blanco para JPG/WebP
                         if (imgData.format === 'jpg' || imgData.format === 'webp') {
+                            ctx.globalCompositeOperation = 'destination-over';
                             ctx.fillStyle = '#FFFFFF';
                             ctx.fillRect(0, 0, canvas.width, canvas.height);
+                            ctx.globalCompositeOperation = 'source-over';
                         }
-                        
-                        ctx.drawImage(img, 0, 0);
-                        
+
                         // Determinar nombre final
                         let finalName = `${imgData.newName}.${imgData.format}`;
                         if (usedNames[finalName]) {
@@ -2589,7 +2609,12 @@ foto2.jpg,Cumpleaños,2024-02-20,evento,María,Fiesta</pre>
                             // Insertar metadatos EXIF según configuración
                             if (exifModeValue !== 'remove_all' && imgData.format === 'jpg' && imgData.exifData) {
                                 try {
-                                    let cleanedExif = imgData.exifData;
+                                    let cleanedExif = JSON.parse(JSON.stringify(imgData.exifData));
+                                    
+                                    // Resetear orientación a "normal" porque ya la corregimos en el canvas
+                                    if (cleanedExif['0th']) {
+                                        cleanedExif['0th'][piexif.ImageIFD.Orientation] = 1;
+                                    }
                                     
                                     // Si es "solo eliminar GPS", limpiar GPS
                                     if (exifModeValue === 'remove_gps' && cleanedExif.GPS) {
@@ -2692,8 +2717,8 @@ foto2.jpg,Cumpleaños,2024-02-20,evento,María,Fiesta</pre>
             customPrefix.value = '';
             customPrefixGroup.style.display = 'none';
             batchFormat.value = 'keep';
-            batchQuality.value = 95;
-            batchQualityValue.textContent = '95%';
+            batchQuality.value = 50;
+            batchQualityValue.textContent = '50%';
             
             processRenameBtn.disabled = false;
             
