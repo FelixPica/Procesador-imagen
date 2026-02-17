@@ -1,11 +1,10 @@
 const CACHE_NAME = 'procesador-imagenes-v2';
 
-// Rutas relativas para que funcione en cualquier subpath (GitHub Pages, Netlify, etc.)
 const urlsToCache = [
-  './procesador-imagenes.html',
-  './manifest.json',
-  './icon-192.png',
-  './icon-512.png',
+  '/Procesador-imagen/procesador-imagenes.html',
+  '/Procesador-imagen/manifest.json',
+  '/Procesador-imagen/icon-192.png',
+  '/Procesador-imagen/icon-512.png',
   'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js',
   'https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js',
   'https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js'
@@ -56,7 +55,7 @@ self.addEventListener('fetch', event => {
               .then(cache => cache.put(event.request, responseToCache));
             return networkResponse;
           })
-          .catch(() => caches.match('./procesador-imagenes.html'));
+          .catch(() => caches.match('/Procesador-imagen/procesador-imagenes.html'));
       })
   );
 });
