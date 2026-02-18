@@ -1604,28 +1604,56 @@ foto2.jpg,Cumpleaños,2024-02-20,evento,María,Fiesta</pre>
             const delimiter = getSelectedDelimiter();
             const delimiterName = getDelimiterName(delimiter);
             
-            const csvContent = `Nombre_Archivo${delimiter}Texto\n` +
-                `imagen1.jpg${delimiter}¡Hola Mundo!\n` +
-                `imagen2.png${delimiter}Año 2024\n` +
-                `foto3.jpg${delimiter}Celebración\n` +
-                `vacaciones.png${delimiter}¿Qué tal?\n` +
-                `evento.jpg${delimiter}Niño pequeño\n`;
+            let csvContent = `Nombre_Archivo${delimiter}Texto\n`;
             
-            downloadCSV(csvContent, `plantilla_utf8_${delimiterName}.csv`);
+            // Si hay imágenes cargadas, usar sus nombres
+            if (images.length > 0) {
+                csvContent += images.map(img => 
+                    `${img.name}${delimiter}`
+                ).join('\n');
+            } else {
+                // Si no hay imágenes, usar ejemplos
+                csvContent += 
+                    `imagen1.jpg${delimiter}¡Hola Mundo!\n` +
+                    `imagen2.png${delimiter}Año 2024\n` +
+                    `foto3.jpg${delimiter}Celebración\n` +
+                    `vacaciones.png${delimiter}¿Qué tal?\n` +
+                    `evento.jpg${delimiter}Niño pequeño\n`;
+            }
+            
+            const filename = images.length > 0 
+                ? `plantilla_${images.length}_fotos_${delimiterName}.csv`
+                : `plantilla_utf8_${delimiterName}.csv`;
+            
+            downloadCSV(csvContent, filename);
         }
 
         function downloadCSVTemplateBoth() {
             const delimiter = getSelectedDelimiter();
             const delimiterName = getDelimiterName(delimiter);
             
-            const csvContent = `Nombre_Archivo${delimiter}Texto\n` +
-                `imagen1.jpg${delimiter}Foto: {filename}\n` +
-                `imagen2.png${delimiter}Año 2024 - {filename}\n` +
-                `foto3.jpg${delimiter}{filename} - Celebración\n` +
-                `vacaciones.png${delimiter}{filename}\n` +
-                `evento.jpg${delimiter}Evento: {filename}\n`;
+            let csvContent = `Nombre_Archivo${delimiter}Texto\n`;
             
-            downloadCSV(csvContent, `plantilla_combinada_utf8_${delimiterName}.csv`);
+            // Si hay imágenes cargadas, usar sus nombres
+            if (images.length > 0) {
+                csvContent += images.map(img => 
+                    `${img.name}${delimiter}Texto: {filename}`
+                ).join('\n');
+            } else {
+                // Si no hay imágenes, usar ejemplos
+                csvContent += 
+                    `imagen1.jpg${delimiter}Foto: {filename}\n` +
+                    `imagen2.png${delimiter}Año 2024 - {filename}\n` +
+                    `foto3.jpg${delimiter}{filename} - Celebración\n` +
+                    `vacaciones.png${delimiter}{filename}\n` +
+                    `evento.jpg${delimiter}Evento: {filename}\n`;
+            }
+            
+            const filename = images.length > 0 
+                ? `plantilla_combinada_${images.length}_fotos_${delimiterName}.csv`
+                : `plantilla_combinada_utf8_${delimiterName}.csv`;
+            
+            downloadCSV(csvContent, filename);
         }
 
         function downloadCSV(content, filename) {
@@ -1647,7 +1675,11 @@ foto2.jpg,Cumpleaños,2024-02-20,evento,María,Fiesta</pre>
             };
             const delimiterDisplay = delimiterNames[delimiter] || `personalizado (${delimiter})`;
             
-            showStatus(`✅ Plantilla descargada con delimitador: ${delimiterDisplay}. Recuerda guardarla como UTF-8 después de editarla.`, 'success');
+            const message = images.length > 0
+                ? `✅ Plantilla descargada con ${images.length} nombre(s) de tus fotos y delimitador: ${delimiterDisplay}. Completa la columna "Texto" y súbela de nuevo.`
+                : `✅ Plantilla de ejemplo descargada con delimitador: ${delimiterDisplay}. Recuerda guardarla como UTF-8 después de editarla.`;
+            
+            showStatus(message, 'success');
         }
 
         // Drop zone para imágenes
