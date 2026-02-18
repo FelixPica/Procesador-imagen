@@ -668,6 +668,28 @@
             <div id="imageList" class="file-list"></div>
         </div>
 
+        <!-- Paso 1b: Editar Metadatos EXIF (opcional) -->
+        <div class="step" id="exifEditStep" style="display: none;">
+            <div class="step-title" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleExifSection()">
+                <div>
+                    <span class="step-number">1b</span>
+                    Editar Metadatos EXIF (opcional)
+                </div>
+                <button type="button" class="btn" style="padding: 8px 16px;" id="exifSectionToggle">
+                    ▼ Mostrar editor
+                </button>
+            </div>
+            
+            <div id="exifSectionContent" style="display: none;">
+                <div style="padding: 15px; background: #e3f2fd; border-left: 4px solid #2196f3; border-radius: 8px; margin-bottom: 20px; margin-top: 15px;">
+                    <strong>💡 Información:</strong> Aquí puedes editar los metadatos EXIF de cada imagen antes de procesarlas. 
+                    Los cambios se aplicarán solo a las imágenes procesadas, no a los archivos originales.
+                </div>
+                
+                <div id="exifEditorList"></div>
+            </div>
+        </div>
+
         <!-- Paso 2: Elegir Fuente de Texto -->
         <div class="step">
             <div class="step-title">
@@ -957,7 +979,7 @@ foto2.jpg,Cumpleaños,2024-02-20,evento,María,Fiesta</pre>
                 </button>
                 
                 <label style="display: flex; align-items: center; gap: 10px; margin-left: auto; cursor: pointer; padding: 10px 15px; background: white; border: 2px solid #e0e0e0; border-radius: 8px; transition: all 0.3s ease;">
-                    <input type="checkbox" id="autoPreview" checked style="width: 18px; height: 18px; cursor: pointer;">
+                    <input type="checkbox" id="autoPreview" style="width: 18px; height: 18px; cursor: pointer;">
                     <span style="font-weight: 600; color: #333;">🔄 Vista previa automática</span>
                 </label>
             </div>
@@ -1355,7 +1377,7 @@ foto2.jpg,Cumpleaños,2024-02-20,evento,María,Fiesta</pre>
             qualityValue.parentElement.style.opacity = '1';
 
             // Resetear checkboxes
-            autoPreviewCheckbox.checked = true;
+            autoPreviewCheckbox.checked = false;
             renameWithTextCheckbox.checked = false;
             
             // Resetear gestión de EXIF
@@ -1366,6 +1388,14 @@ foto2.jpg,Cumpleaños,2024-02-20,evento,María,Fiesta</pre>
             removeCamera.checked = false;
             removeCopyright.checked = false;
             removeSettings.checked = false;
+            
+            // Ocultar y colapsar paso de edición EXIF
+            const exifEditStep = document.getElementById('exifEditStep');
+            const exifSectionContent = document.getElementById('exifSectionContent');
+            const exifSectionToggle = document.getElementById('exifSectionToggle');
+            exifEditStep.style.display = 'none';
+            exifSectionContent.style.display = 'none';
+            exifSectionToggle.textContent = '▼ Mostrar editor';
 
             // Deshabilitar botones
             generatePreviewBtn.disabled = true;
@@ -1735,16 +1765,299 @@ foto2.jpg,Cumpleaños,2024-02-20,evento,María,Fiesta</pre>
                     ✅ ${images.length} imagen(es) cargada(s)
                 </div>
                 <div class="file-list">
-                    ${images.map(img => `
+                    ${images.map((img, index) => `
                         <div class="file-item">
                             <span>📷 ${img.name}</span>
+                            ${img.exifData ? '<span style="font-size: 0.85em; color: #28a745;">✓ Con EXIF</span>' : '<span style="font-size: 0.85em; color: #999;">Sin EXIF</span>'}
                         </div>
                     `).join('')}
                 </div>
             `;
+            
+            // Mostrar paso de edición EXIF si hay imágenes con metadatos
+            const hasExif = images.some(img => img.exifData);
+            const exifEditStep = document.getElementById('exifEditStep');
+            if (hasExif) {
+                exifEditStep.style.display = 'block';
+                buildExifEditorList();
+            } else {
+                exifEditStep.style.display = 'none';
+            }
+        }
+        
+        function buildExifEditorList() {
+            const exifEditorList = document.getElementById('exifEditorList');
+            const imagesWithExif = images.filter(img => img.exifData);
+            
+            if (imagesWithExif.length === 0) {
+                exifEditorList.innerHTML = '<p style="color: #999;">No hay imágenes con metadatos EXIF para editar.</p>';
+                return;
+            }
+            
+            exifEditorList.innerHTML = imagesWithExif.map((img, idx) => {
+                const realIndex = images.indexOf(img);
+                return `
+                    <div style="margin-bottom: 20px; border: 2px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+                        <div style="padding: 15px; background: white; display: flex; align-items: center; justify-content: space-between; cursor: pointer;" onclick="toggleExifEditor(${realIndex})">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="font-weight: 600;">📷 ${img.name}</span>
+                            </div>
+                            <button type="button" class="btn" style="padding: 8px 15px;">
+                                <span id="exif-toggle-${realIndex}">▼ Editar EXIF</span>
+                            </button>
+                        </div>
+                        <div id="exif-editor-${realIndex}" style="display: none; padding: 20px; background: #f8f9fa; border-top: 2px solid #e0e0e0;"></div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Función para expandir/contraer la sección completa del paso 1b
+        function toggleExifSection() {
+            const content = document.getElementById('exifSectionContent');
+            const toggleBtn = document.getElementById('exifSectionToggle');
+            
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                toggleBtn.textContent = '▲ Ocultar editor';
+            } else {
+                content.style.display = 'none';
+                toggleBtn.textContent = '▼ Mostrar editor';
+            }
         }
 
         // Actualizar mapeo de texto según fuente seleccionada
+        function toggleExifEditor(index) {
+            const editorDiv = document.getElementById(`exif-editor-${index}`);
+            const toggleText = document.getElementById(`exif-toggle-${index}`);
+            const img = images[index];
+            
+            // Toggle visibilidad
+            if (editorDiv.style.display === 'block') {
+                editorDiv.style.display = 'none';
+                toggleText.textContent = '▼ Editar EXIF';
+                return;
+            }
+            
+            toggleText.textContent = '▲ Ocultar';
+            
+            if (!img.exifData) {
+                editorDiv.innerHTML = '<p style="color: #999;">Esta imagen no tiene metadatos EXIF</p>';
+                editorDiv.style.display = 'block';
+                return;
+            }
+            
+            // Extraer datos actuales
+            const exif = img.exifData;
+            const gpsData = exif.GPS || {};
+            const exifIfd = exif.Exif || {};
+            const imageIfd = exif['0th'] || {};
+            
+            // Funciones helper para GPS
+            const getGPSValue = (ref) => {
+                if (!gpsData[ref]) return '';
+                const values = gpsData[ref];
+                if (Array.isArray(values) && values.length === 3) {
+                    return values[0][0]/values[0][1] + values[1][0]/(values[1][1]*60) + values[2][0]/(values[2][1]*3600);
+                }
+                return '';
+            };
+            
+            const latitude = getGPSValue(piexif.GPSIFD.GPSLatitude);
+            const longitude = getGPSValue(piexif.GPSIFD.GPSLongitude);
+            const latRef = gpsData[piexif.GPSIFD.GPSLatitudeRef] || '';
+            const lonRef = gpsData[piexif.GPSIFD.GPSLongitudeRef] || '';
+            
+            const make = imageIfd[piexif.ImageIFD.Make] || '';
+            const model = imageIfd[piexif.ImageIFD.Model] || '';
+            const dateTime = imageIfd[piexif.ImageIFD.DateTime] || '';
+            const artist = imageIfd[piexif.ImageIFD.Artist] || '';
+            const copyright = imageIfd[piexif.ImageIFD.Copyright] || '';
+            
+            editorDiv.innerHTML = `
+                <div style="display: grid; gap: 20px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        <!-- GPS -->
+                        <div style="padding: 20px; background: white; border-radius: 8px; border: 2px solid #e0e0e0;">
+                            <h5 style="margin: 0 0 15px 0; color: #333; font-size: 1.1em;">🗺️ Ubicación GPS</h5>
+                            <div style="display: grid; gap: 12px;">
+                                <label style="display: flex; flex-direction: column; gap: 5px;">
+                                    <span style="font-size: 0.9em; color: #666; font-weight: 600;">Latitud (decimal):</span>
+                                    <input type="number" id="lat-${index}" value="${latitude ? (latRef === 'S' ? -latitude : latitude).toFixed(6) : ''}" 
+                                           step="0.000001" placeholder="40.416775" 
+                                           style="padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 1em;">
+                                </label>
+                                <label style="display: flex; flex-direction: column; gap: 5px;">
+                                    <span style="font-size: 0.9em; color: #666; font-weight: 600;">Longitud (decimal):</span>
+                                    <input type="number" id="lon-${index}" value="${longitude ? (lonRef === 'W' ? -longitude : longitude).toFixed(6) : ''}" 
+                                           step="0.000001" placeholder="-3.703790" 
+                                           style="padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 1em;">
+                                </label>
+                                <button onclick="clearGPS(${index})" class="btn" style="background: #dc3545; color: white; padding: 10px; border: none;">
+                                    🗑️ Eliminar GPS
+                                </button>
+                                <p style="margin: 10px 0 0 0; padding: 10px; background: #fff3cd; border-radius: 6px; font-size: 0.85em; color: #856404;">
+                                    <strong>💡 Tip:</strong> Copia coordenadas desde Google Maps. Formato: Latitud (positivo=Norte), Longitud (positivo=Este)
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Cámara -->
+                        <div style="padding: 20px; background: white; border-radius: 8px; border: 2px solid #e0e0e0;">
+                            <h5 style="margin: 0 0 15px 0; color: #333; font-size: 1.1em;">📷 Información de Cámara</h5>
+                            <div style="display: grid; gap: 12px;">
+                                <label style="display: flex; flex-direction: column; gap: 5px;">
+                                    <span style="font-size: 0.9em; color: #666; font-weight: 600;">Marca:</span>
+                                    <input type="text" id="make-${index}" value="${make}" placeholder="Canon, Nikon, Sony..." 
+                                           style="padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 1em;">
+                                </label>
+                                <label style="display: flex; flex-direction: column; gap: 5px;">
+                                    <span style="font-size: 0.9em; color: #666; font-weight: 600;">Modelo:</span>
+                                    <input type="text" id="model-${index}" value="${model}" placeholder="EOS R5, D850, A7III..." 
+                                           style="padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 1em;">
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Autor/Copyright -->
+                        <div style="padding: 20px; background: white; border-radius: 8px; border: 2px solid #e0e0e0;">
+                            <h5 style="margin: 0 0 15px 0; color: #333; font-size: 1.1em;">©️ Autor y Copyright</h5>
+                            <div style="display: grid; gap: 12px;">
+                                <label style="display: flex; flex-direction: column; gap: 5px;">
+                                    <span style="font-size: 0.9em; color: #666; font-weight: 600;">Artista/Fotógrafo:</span>
+                                    <input type="text" id="artist-${index}" value="${artist}" placeholder="Tu nombre completo" 
+                                           style="padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 1em;">
+                                </label>
+                                <label style="display: flex; flex-direction: column; gap: 5px;">
+                                    <span style="font-size: 0.9em; color: #666; font-weight: 600;">Copyright:</span>
+                                    <input type="text" id="copyright-${index}" value="${copyright}" placeholder="© 2024 Tu Nombre" 
+                                           style="padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 1em;">
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Fecha -->
+                        <div style="padding: 20px; background: white; border-radius: 8px; border: 2px solid #e0e0e0;">
+                            <h5 style="margin: 0 0 15px 0; color: #333; font-size: 1.1em;">📅 Fecha y Hora</h5>
+                            <label style="display: flex; flex-direction: column; gap: 5px;">
+                                <span style="font-size: 0.9em; color: #666; font-weight: 600;">Fecha de captura:</span>
+                                <input type="text" id="datetime-${index}" value="${dateTime}" placeholder="YYYY:MM:DD HH:MM:SS" 
+                                       style="padding: 10px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 1em;">
+                            </label>
+                            <p style="margin: 10px 0 0 0; padding: 10px; background: #e3f2fd; border-radius: 6px; font-size: 0.85em; color: #1565c0;">
+                                <strong>Formato:</strong> 2024:02:18 14:30:00
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 15px; justify-content: center; padding: 20px; background: white; border-radius: 8px; border: 2px solid #e0e0e0;">
+                        <button onclick="saveExifChanges(${index})" class="btn btn-primary" style="padding: 12px 30px; font-size: 1.05em;">
+                            💾 Guardar Cambios
+                        </button>
+                        <button onclick="resetExifChanges(${index})" class="btn" style="padding: 12px 30px; background: #6c757d; color: white; font-size: 1.05em;">
+                            ↩️ Restaurar Original
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            editorDiv.style.display = 'block';
+        }
+        
+        // Guardar cambios en los metadatos EXIF
+        function saveExifChanges(index) {
+            const img = images[index];
+            if (!img.exifData) return;
+            
+            const exif = JSON.parse(JSON.stringify(img.exifData)); // Copia profunda
+            
+            // Actualizar GPS
+            const lat = parseFloat(document.getElementById(`lat-${index}`).value);
+            const lon = parseFloat(document.getElementById(`lon-${index}`).value);
+            
+            if (!isNaN(lat) && !isNaN(lon)) {
+                if (!exif.GPS) exif.GPS = {};
+                
+                // Convertir decimal a grados/minutos/segundos
+                const latAbs = Math.abs(lat);
+                const lonAbs = Math.abs(lon);
+                
+                const latDeg = Math.floor(latAbs);
+                const latMin = Math.floor((latAbs - latDeg) * 60);
+                const latSec = ((latAbs - latDeg) * 60 - latMin) * 60;
+                
+                const lonDeg = Math.floor(lonAbs);
+                const lonMin = Math.floor((lonAbs - lonDeg) * 60);
+                const lonSec = ((lonAbs - lonDeg) * 60 - lonMin) * 60;
+                
+                exif.GPS[piexif.GPSIFD.GPSLatitude] = [[latDeg, 1], [latMin, 1], [Math.round(latSec * 100), 100]];
+                exif.GPS[piexif.GPSIFD.GPSLongitude] = [[lonDeg, 1], [lonMin, 1], [Math.round(lonSec * 100), 100]];
+                exif.GPS[piexif.GPSIFD.GPSLatitudeRef] = lat >= 0 ? 'N' : 'S';
+                exif.GPS[piexif.GPSIFD.GPSLongitudeRef] = lon >= 0 ? 'E' : 'W';
+            }
+            
+            // Actualizar cámara
+            if (!exif['0th']) exif['0th'] = {};
+            const make = document.getElementById(`make-${index}`).value;
+            const model = document.getElementById(`model-${index}`).value;
+            if (make) exif['0th'][piexif.ImageIFD.Make] = make;
+            if (model) exif['0th'][piexif.ImageIFD.Model] = model;
+            
+            // Actualizar autor
+            const artist = document.getElementById(`artist-${index}`).value;
+            const copyright = document.getElementById(`copyright-${index}`).value;
+            if (artist) exif['0th'][piexif.ImageIFD.Artist] = artist;
+            if (copyright) exif['0th'][piexif.ImageIFD.Copyright] = copyright;
+            
+            // Actualizar fecha
+            const datetime = document.getElementById(`datetime-${index}`).value;
+            if (datetime) {
+                exif['0th'][piexif.ImageIFD.DateTime] = datetime;
+                if (!exif.Exif) exif.Exif = {};
+                exif.Exif[piexif.ExifIFD.DateTimeOriginal] = datetime;
+            }
+            
+            img.exifData = exif;
+            alert('✅ Cambios guardados en memoria. Se aplicarán al procesar las imágenes.');
+        }
+        
+        // Restaurar metadatos originales
+        function resetExifChanges(index) {
+            if (!confirm('¿Restaurar los metadatos EXIF originales? Se perderán los cambios no guardados.')) {
+                return;
+            }
+            
+            // Recargar la imagen original
+            const file = Array.from(imageInput.files).find(f => f.name === images[index].name);
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    images[index].exifData = piexif.load(e.target.result);
+                    toggleExifEditor(index); // Cerrar
+                    toggleExifEditor(index); // Reabrir con datos actualizados
+                    alert('✅ Metadatos restaurados al original');
+                } catch (err) {
+                    alert('❌ Error al restaurar metadatos');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+        
+        // Limpiar GPS
+        function clearGPS(index) {
+            document.getElementById(`lat-${index}`).value = '';
+            document.getElementById(`lon-${index}`).value = '';
+            
+            const img = images[index];
+            if (img.exifData && img.exifData.GPS) {
+                delete img.exifData.GPS;
+            }
+            
+            alert('🗑️ GPS eliminado. Guarda los cambios para aplicar.');
+        }
+
         function updateTextMapping() {
             textMapping = {};
 
