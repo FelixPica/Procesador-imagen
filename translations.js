@@ -26,7 +26,7 @@ const LANGUAGES = {
 
     // Pantalla de selección de modo
     modeSelection: {
-      appTitle: '🎨 Procesador de Imágenes',
+      appTitle: '🎨 Procesador de Imágenes V4.4',
       appSubtitle: 'Elige qué quieres hacer con tus imágenes',
 
       addTextTitle: 'Añadir Texto a Imágenes',
@@ -178,6 +178,8 @@ const LANGUAGES = {
       qualityPngNote: 'PNG es sin pérdida, la calidad no aplica',
       renameWithTextLabel: '📝 Renombrar archivos con el texto de la imagen',
       renameWithTextDesc: 'El nombre del archivo será el texto que se añade a la imagen. Si hay duplicados, se añade _1, _2, etc.',
+      ignoreExifLabel:'🔄 Ignorar rotación automática EXIF',
+      ignoreExifDesc:'Si está marcado, las imágenes se cargarán sin aplicar la orientación de los metadatos EXIF. Útil si prefieres rotar manualmente.',
       exifManageLabel: '📍 Gestión de Metadatos EXIF',
       exifKeep: 'Preservar todos',
       exifRemoveAll: 'Eliminar todos',
@@ -288,7 +290,7 @@ const LANGUAGES = {
     meta: { name: 'Català', flag: '🏴󠁥󠁳󠁣󠁴󠁿', dir: 'ltr' },
     langSelector: { label: 'Idioma', tooltip: 'Canviar idioma' },
     modeSelection: {
-      appTitle: '🎨 Processador d\'Imatges',
+      appTitle: '🎨 Processador d\'Imatges V4.4',
       appSubtitle: 'Tria què vols fer amb les teves imatges',
       addTextTitle: 'Afegir Text a Imatges',
       addTextDesc: 'Insereix text personalitzat a les teves imatges amb control total sobre l\'estil, posició i format de sortida.',
@@ -417,6 +419,8 @@ const LANGUAGES = {
       qualityPngNote: 'PNG és sense pèrdua, la qualitat no aplica',
       renameWithTextLabel: '📝 Reanomenar arxius amb el text de la imatge',
       renameWithTextDesc: 'El nom de l\'arxiu serà el text que s\'afegeix a la imatge.',
+      ignoreExifLabel:'🔄 Ignorar rotació automàtica EXIF',
+      ignoreExifDesc:'Si està marcat, les imatges es carregaran sense aplicar l\'orientació dels metadades EXIF. Útil si prefereixes rotar manualment.',
       exifManageLabel: '📍 Gestió de Metadades EXIF',
       exifKeep: 'Preservar totes',
       exifRemoveAll: 'Eliminar totes',
@@ -509,7 +513,7 @@ const LANGUAGES = {
     meta: { name: 'Euskera', flag: '🏴󠁥󠁳󠁰󠁶󠁿', dir: 'ltr' },
     langSelector: { label: 'Hizkuntza', tooltip: 'Hizkuntza aldatu' },
     modeSelection: {
-      appTitle: '🎨 Irudien Prozesadorea',
+      appTitle: '🎨 Irudien Prozesadorea V4.4',
       appSubtitle: 'Aukeratu zer egin nahi duzun zure irudiekin',
       addTextTitle: 'Testua Gehitu Irudiei',
       addTextDesc: 'Gehitu testu pertsonalizatua zure irudiei estilo, posizio eta irteera-formatuaren kontrol osoarekin.',
@@ -637,6 +641,8 @@ const LANGUAGES = {
       qualityPngNote: 'PNG galerarik gabekoa da, kalitatea ez da aplikatzen',
       renameWithTextLabel: '📝 Fitxategiak berrizendatu irudiaren testuarekin',
       renameWithTextDesc: 'Fitxategiaren izena irudiari gehitzen zaion testua izango da.',
+      ignoreExifLabel:'🔄 EXIF orientazio automatikoa ez aplikatu',
+      ignoreExifDesc:'Markatuta badago, irudiak EXIF metadatuen orientazioa aplikatu gabe kargatuko dira. Erabilgarria eskuz biratu nahi baduzu.',
       exifManageLabel: '📍 EXIF Metadatuen Kudeaketa',
       exifKeep: 'Denak gorde',
       exifRemoveAll: 'Denak ezabatu',
@@ -729,7 +735,7 @@ const LANGUAGES = {
     meta: { name: 'Galego', flag: '🏴󠁥󠁳󠁧󠁡󠁿', dir: 'ltr' },
     langSelector: { label: 'Idioma', tooltip: 'Cambiar idioma' },
     modeSelection: {
-      appTitle: '🎨 Procesador de Imaxes',
+      appTitle: '🎨 Procesador de Imaxes V4.4',
       appSubtitle: 'Escolle que queres facer coas túas imaxes',
       addTextTitle: 'Engadir Texto a Imaxes',
       addTextDesc: 'Insire texto personalizado nas túas imaxes con control total sobre o estilo, posición e formato de saída.',
@@ -858,6 +864,8 @@ const LANGUAGES = {
       qualityPngNote: 'PNG é sen perda, a calidade non aplica',
       renameWithTextLabel: '📝 Renomear arquivos co texto da imaxe',
       renameWithTextDesc: 'O nome do arquivo será o texto que se engade á imaxe.',
+      ignoreExifLabel:'🔄 Ignorar rotación automática EXIF',
+      ignoreExifDesc:'Se está marcado, as imaxes cargaranse sen aplicar a orientación dos metadatos EXIF. Útil se prefires rotar manualmente.',
       exifManageLabel: '📍 Xestión de Metadatos EXIF',
       exifKeep: 'Preservar todos',
       exifRemoveAll: 'Eliminar todos',
@@ -950,7 +958,7 @@ const LANGUAGES = {
     meta: { name: 'English', flag: '🇬🇧', dir: 'ltr' },
     langSelector: { label: 'Language', tooltip: 'Change language' },
     modeSelection: {
-      appTitle: '🎨 Image Processor',
+      appTitle: '🎨 Image Processor V4.4',
       appSubtitle: 'Choose what you want to do with your images',
       addTextTitle: 'Add Text to Images',
       addTextDesc: 'Insert custom text into your images with full control over style, position, and output format.',
@@ -1080,6 +1088,8 @@ const LANGUAGES = {
       qualityPngNote: 'PNG is lossless, quality does not apply',
       renameWithTextLabel: '📝 Rename files with image text',
       renameWithTextDesc: 'The file name will be the text added to the image. Duplicates get _1, _2, etc.',
+      ignoreExifLabel:'🔄 Ignore automatic EXIF rotation',
+      ignoreExifDesc:'If checked, images will be loaded without applying the orientation from EXIF metadata. Useful if you prefer to rotate manually.',
       exifManageLabel: '📍 EXIF Metadata Management',
       exifKeep: 'Preserve all',
       exifRemoveAll: 'Remove all',
@@ -1172,7 +1182,7 @@ const LANGUAGES = {
     meta: { name: 'Français', flag: '🇫🇷', dir: 'ltr' },
     langSelector: { label: 'Langue', tooltip: 'Changer la langue' },
     modeSelection: {
-      appTitle: '🎨 Processeur d\'Images',
+      appTitle: '🎨 Processeur d\'Images V4.4',
       appSubtitle: 'Choisissez ce que vous voulez faire avec vos images',
       addTextTitle: 'Ajouter du Texte aux Images',
       addTextDesc: 'Insérez du texte personnalisé dans vos images avec un contrôle total sur le style, la position et le format de sortie.',
@@ -1301,6 +1311,8 @@ const LANGUAGES = {
       qualityPngNote: 'PNG est sans perte, la qualité ne s\'applique pas',
       renameWithTextLabel: '📝 Renommer les fichiers avec le texte de l\'image',
       renameWithTextDesc: 'Le nom du fichier sera le texte ajouté à l\'image.',
+      ignoreExifLabel:'🔄 Ignorer la rotation automatique EXIF',
+      ignoreExifDesc:'Si coché, les images seront chargées sans appliquer l\'orientation des métadonnées EXIF. Utile si vous préférez faire pivoter manuellement.',
       exifManageLabel: '📍 Gestion des Métadonnées EXIF',
       exifKeep: 'Préserver toutes',
       exifRemoveAll: 'Supprimer toutes',

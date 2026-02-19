@@ -199,6 +199,7 @@
             overflow: hidden;
             background: white;
             transition: all 0.3s ease;
+            cursor: pointer;
         }
         .preview-item:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.1); transform: translateY(-4px); }
         .preview-canvas { width: 100%; height: 200px; object-fit: cover; }
@@ -602,8 +603,17 @@ foto1.jpg,Vacaciones 2024,2024-01-15,viaje,Juan,Playa</pre>
                         <span id="at-renameWithTextLabel" style="font-weight: 600; color: #333;"></span>
                     </label>
                     <p id="at-renameWithTextDesc" style="margin: 0 0 15px 28px; color: #666; font-size: 0.9em;"></p>
-                    
+
                     <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid #e0e0e0;">
+                        <!-- Opción para ignorar orientación EXIF -->
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 15px; padding: 12px; background: #e3f2fd; border-radius: 8px; border-left: 4px solid #2196f3;">
+                            <input type="checkbox" id="ignoreExifOrientation" checked  style="width: 18px; height: 18px; cursor: pointer;">
+                            <div style="flex: 1;">
+                                <span id="at-ignoreExifLabel" style="font-weight: 600; color: #333;"></span>
+                                <p id="at-ignoreExifDesc" style="margin: 5px 0 0 0; color: #666; font-size: 0.85em;"></p>
+                            </div>
+                        </label>
+
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
                             <span id="at-exifManageLabel" style="font-weight: 600; color: #333;"></span>
                             <select id="exifMode" style="padding: 8px; border: 2px solid #e0e0e0; border-radius: 6px; font-size: 0.9em;">
@@ -807,6 +817,8 @@ foto1.jpg,Vacaciones 2024,2024-01-15,viaje,Juan,Playa</pre>
         setText('exifSectionToggle',  document.getElementById('exifSectionContent')?.style.display === 'block'
                                         ? at.step1bHideBtn : at.step1bShowBtn);
         setText('at-step1bInfo',      at.step1bInfo);
+        setText('at-ignoreExifLabel', at.ignoreExifLabel);
+        setText('at-ignoreExifDesc',  at.ignoreExifDesc);
         setText('at-step2Title',      at.step2Title);
         setText('at-textSourceLabel', at.textSourceLabel);
         setText('at-sourceCSV',       at.sourceCSV);
@@ -1013,6 +1025,7 @@ foto1.jpg,Vacaciones 2024,2024-01-15,viaje,Juan,Playa</pre>
     const autoPreviewCheckbox = document.getElementById('autoPreview');
     const previewInfo = document.getElementById('previewInfo');
     const renameWithTextCheckbox = document.getElementById('renameWithText');
+    const ignoreExifOrientationCheckbox = document.getElementById('ignoreExifOrientation');
     const resetAllBtn = document.getElementById('resetAll');
 
     const exifMode = document.getElementById('exifMode');
@@ -1059,6 +1072,15 @@ foto1.jpg,Vacaciones 2024,2024-01-15,viaje,Juan,Playa</pre>
     }
 
     function applyExifOrientation(canvas, ctx, img, exifData) {
+        // Si el usuario marcó ignorar orientación EXIF, dibujar imagen sin rotar
+        if (ignoreExifOrientationCheckbox && ignoreExifOrientationCheckbox.checked) {
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+            return;
+        }
+        
+        // Aplicar orientación EXIF normal
         const orientation = exifData?.['0th']?.[piexif.ImageIFD.Orientation] ?? 1;
         const w = img.width, h = img.height;
         if (orientation >= 5) { canvas.width = h; canvas.height = w; }
@@ -1617,9 +1639,21 @@ foto1.jpg,Vacaciones 2024,2024-01-15,viaje,Juan,Playa</pre>
             if (!text) { notFound.push(image.name); return; }
             const canvas = document.createElement('canvas'), ctx = canvas.getContext('2d'), img = new Image();
             img.onload = () => {
-                applyExifOrientation(canvas, ctx, img, image.exifData);
+                // Si la imagen tiene una rotación personalizada guardada, usar el canvas rotado
+                if (image.rotatedCanvas) {
+                    canvas.width = image.rotatedCanvas.width;
+                    canvas.height = image.rotatedCanvas.height;
+                    ctx.drawImage(image.rotatedCanvas, 0, 0);
+                } else {
+                    // Usar orientación EXIF normal
+                    applyExifOrientation(canvas, ctx, img, image.exifData);
+                }
                 addTextToCanvas(ctx, text, canvas.width, canvas.height);
                 const previewItem = document.createElement('div'); previewItem.className = 'preview-item';
+                
+                // Añadir evento click para abrir modal con imagen en alta calidad
+                previewItem.onclick = () => openImageModal(canvas, image.name, text);
+                
                 const previewCanvas = document.createElement('canvas'); previewCanvas.className = 'preview-canvas';
                 const previewCtx = previewCanvas.getContext('2d');
                 previewCanvas.width = 250; previewCanvas.height = 200;
@@ -1692,7 +1726,16 @@ foto1.jpg,Vacaciones 2024,2024-01-15,viaje,Juan,Playa</pre>
             const canvas = document.createElement('canvas'), ctx = canvas.getContext('2d'), img = new Image();
             await new Promise(resolve => {
                 img.onload = () => {
-                    applyExifOrientation(canvas, ctx, img, image.exifData);
+                    // Si la imagen tiene una rotación personalizada guardada, usar el canvas rotado
+                    if (image.rotatedCanvas) {
+                        canvas.width = image.rotatedCanvas.width;
+                        canvas.height = image.rotatedCanvas.height;
+                        ctx.drawImage(image.rotatedCanvas, 0, 0);
+                    } else {
+                        // Usar orientación EXIF normal
+                        applyExifOrientation(canvas, ctx, img, image.exifData);
+                    }
+                    
                     if (config.needsBackground) {
                         ctx.globalCompositeOperation = 'destination-over';
                         ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -1938,6 +1981,162 @@ foto1.jpg,Vacaciones 2024,2024-01-15,viaje,Juan,Playa</pre>
         setTimeout(() => { renameStatus.style.display = 'none'; }, 3000);
     }
 
+    // ========== MODAL DE IMAGEN ==========
+    let currentModalImage = null;
+    let currentModalImageOriginal = null; // Canvas con imagen sin texto
+    let currentRotation = 0;
+    let modalImageIndex = -1;
+    
+    function openImageModal(sourceCanvas, imageName, text) {
+        const modal = document.getElementById('imageModal');
+        const modalCanvas = document.getElementById('modalCanvas');
+        const modalImageName = document.getElementById('modalImageName');
+        const modalImageText = document.getElementById('modalImageText');
+        const modalRotationInfo = document.getElementById('modalRotationInfo');
+        
+        // Guardar referencia al canvas con texto
+        currentModalImage = sourceCanvas;
+        
+        // Buscar el índice de la imagen
+        modalImageIndex = images.findIndex(img => img.name === imageName);
+        
+        // Obtener rotación guardada para esta imagen (si existe)
+        currentRotation = images[modalImageIndex]?.customRotation || 0;
+        
+        // Crear canvas con la imagen ORIGINAL sin texto para poder rotarla limpiamente
+        const img = new Image();
+        img.onload = () => {
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            // Si ya tiene rotación guardada, usar el canvas rotado
+            if (images[modalImageIndex].rotatedCanvas) {
+                currentModalImageOriginal = images[modalImageIndex].rotatedCanvas;
+            } else {
+                // Aplicar solo orientación EXIF a la imagen original
+                applyExifOrientation(tempCanvas, tempCtx, img, images[modalImageIndex].exifData);
+                currentModalImageOriginal = tempCanvas;
+            }
+            
+            // Dibujar en el modal con texto
+            drawRotatedImage(modalCanvas, currentModalImage, currentRotation);
+        };
+        img.src = images[modalImageIndex].data;
+        
+        // Establecer info
+        modalImageName.textContent = imageName;
+        modalImageText.textContent = `"${text}"`;
+        modalRotationInfo.style.display = 'none';
+        
+        // Mostrar modal
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+    
+    function drawRotatedImage(targetCanvas, sourceCanvas, rotation) {
+        const ctx = targetCanvas.getContext('2d');
+        
+        // Si la rotación es 90° o 270°, intercambiamos ancho y alto
+        if (rotation === 90 || rotation === -90 || rotation === 270 || rotation === -270) {
+            targetCanvas.width = sourceCanvas.height;
+            targetCanvas.height = sourceCanvas.width;
+        } else {
+            targetCanvas.width = sourceCanvas.width;
+            targetCanvas.height = sourceCanvas.height;
+        }
+        
+        // Limpiar canvas
+        ctx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
+        
+        // Aplicar rotación
+        ctx.save();
+        ctx.translate(targetCanvas.width / 2, targetCanvas.height / 2);
+        ctx.rotate((rotation * Math.PI) / 180);
+        ctx.drawImage(sourceCanvas, -sourceCanvas.width / 2, -sourceCanvas.height / 2);
+        ctx.restore();
+    }
+    
+    function rotateModalImage(degrees) {
+        if (!currentModalImage) return;
+        
+        currentRotation = (currentRotation + degrees) % 360;
+        if (currentRotation < 0) currentRotation += 360;
+        
+        const modalCanvas = document.getElementById('modalCanvas');
+        drawRotatedImage(modalCanvas, currentModalImage, currentRotation);
+        
+        // Mostrar aviso de rotación pendiente
+        document.getElementById('modalRotationInfo').style.display = 'block';
+    }
+    
+    function saveRotation() {
+        if (modalImageIndex === -1 || !currentModalImage) return;
+        
+        // Guardar la rotación en el objeto de la imagen
+        images[modalImageIndex].customRotation = currentRotation;
+        
+        // Crear un canvas temporal con la imagen ORIGINAL sin texto
+        const img = new Image();
+        img.onload = () => {
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            
+            // Primero aplicar orientación EXIF a la imagen original
+            applyExifOrientation(tempCanvas, tempCtx, img, images[modalImageIndex].exifData);
+            
+            // Ahora aplicar la rotación personalizada sobre la imagen ya orientada
+            const rotatedCanvas = document.createElement('canvas');
+            const rotatedCtx = rotatedCanvas.getContext('2d');
+            
+            // Configurar dimensiones según rotación
+            if (currentRotation === 90 || currentRotation === 270) {
+                rotatedCanvas.width = tempCanvas.height;
+                rotatedCanvas.height = tempCanvas.width;
+            } else {
+                rotatedCanvas.width = tempCanvas.width;
+                rotatedCanvas.height = tempCanvas.height;
+            }
+            
+            // Aplicar rotación a la imagen SIN texto
+            rotatedCtx.save();
+            rotatedCtx.translate(rotatedCanvas.width / 2, rotatedCanvas.height / 2);
+            rotatedCtx.rotate((currentRotation * Math.PI) / 180);
+            rotatedCtx.drawImage(tempCanvas, -tempCanvas.width / 2, -tempCanvas.height / 2);
+            rotatedCtx.restore();
+            
+            // Guardar el canvas rotado (sin texto)
+            images[modalImageIndex].rotatedCanvas = rotatedCanvas;
+            
+            // Ocultar aviso
+            document.getElementById('modalRotationInfo').style.display = 'none';
+            
+            // Regenerar vista previa si está activa
+            if (autoPreviewCheckbox.checked && Object.keys(textMapping).length > 0) {
+                generatePreviews();
+            }
+            
+            alert('✅ Rotación guardada. La imagen se procesará con esta orientación.');
+        };
+        img.src = images[modalImageIndex].data;
+    }
+    
+    function closeImageModal() {
+        const modal = document.getElementById('imageModal');
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+        currentModalImage = null;
+        currentModalImageOriginal = null;
+        currentRotation = 0;
+        modalImageIndex = -1;
+    }
+    
+    // Cerrar modal con tecla ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            closeImageModal();
+        }
+    });
+
     // PWA Service Worker
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -1949,5 +2148,33 @@ foto1.jpg,Vacaciones 2024,2024-01-15,viaje,Juan,Playa</pre>
     }
 
     </script>
+    <!-- Modal para vista ampliada de imagen -->
+    <div id="imageModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; align-items: center; justify-content: center;" onclick="closeImageModal()">
+        <div style="position: relative; max-width: 95%; max-height: 95%; display: flex; flex-direction: column; align-items: center;" onclick="event.stopPropagation()">
+            <button onclick="closeImageModal()" style="position: absolute; top: -50px; right: 0; background: white; border: none; border-radius: 50%; width: 40px; height: 40px; font-size: 24px; cursor: pointer; color: #333; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,0.3);">
+                ✕
+            </button>
+            <canvas id="modalCanvas" style="max-width: 100%; max-height: calc(100vh - 200px); object-fit: contain; border-radius: 8px; box-shadow: 0 10px 50px rgba(0,0,0,0.5);"></canvas>
+            <div style="margin-top: 15px; display: flex; gap: 10px;">
+                <button onclick="rotateModalImage(-90)" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; box-shadow: 0 4px 15px rgba(102,126,234,0.3); display: flex; align-items: center; gap: 8px;">
+                    ↺ 90° Izq
+                </button>
+                <button onclick="rotateModalImage(90)" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; box-shadow: 0 4px 15px rgba(102,126,234,0.3); display: flex; align-items: center; gap: 8px;">
+                    90° Der ↻
+                </button>
+                <button onclick="saveRotation()" style="padding: 10px 20px; background: #28a745; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; box-shadow: 0 4px 15px rgba(40,167,69,0.3); display: flex; align-items: center; gap: 8px;">
+                    💾 Guardar Rotación
+                </button>
+            </div>
+            <div id="modalInfo" style="margin-top: 15px; padding: 15px 30px; background: rgba(255,255,255,0.95); border-radius: 8px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">
+                <div id="modalImageName" style="font-weight: 600; font-size: 1.1em; color: #333; margin-bottom: 5px;"></div>
+                <div id="modalImageText" style="color: #666; font-size: 0.95em;"></div>
+                <div id="modalRotationInfo" style="display: none; margin-top: 8px; padding: 8px 12px; background: #fff3cd; border-radius: 6px; color: #856404; font-size: 0.85em;">
+                    ⚠️ Rotación pendiente de guardar
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
