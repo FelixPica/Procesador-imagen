@@ -1,4 +1,4 @@
-const CACHE_NAME = 'procesador-imagenes-v4.3';
+const CACHE_NAME = 'procesador-imagenes-v4.4';
 
 // Calcular base path dinámicamente desde la ubicación del service worker
 const BASE_PATH = self.location.pathname.replace('service-worker.js', '');
