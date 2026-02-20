@@ -26,7 +26,7 @@ const LANGUAGES = {
 
     // Pantalla de selección de modo
     modeSelection: {
-      appTitle: '🎨 Procesador de Imágenes V4.4.2',
+      appTitle: '🎨 Procesador de Imágenes V 4.4.3',
       appSubtitle: 'Elige qué quieres hacer con tus imágenes',
 
       addTextTitle: 'Añadir Texto a Imágenes',
@@ -74,6 +74,7 @@ const LANGUAGES = {
       step1cInfo: 'Visualiza y edita la ubicación GPS de tus imágenes en el mapa. Arrastra los marcadores para cambiar las coordenadas. Las imágenes sin GPS aparecen abajo: arrástralas al mapa para asignarles una ubicación.',
       step1cNoPosLabel: '📌 Imágenes sin ubicación GPS — arrástralas al mapa:',
       step1cDropHere: '📍 Suelta aquí para fijar la ubicación',
+      step1cTapMap: '📍 Toca el mapa para colocar "{name}"',
       step1cMapTip: 'Los cambios se guardan automáticamente en los metadatos EXIF al mover o soltar un marcador.',
       step1cSaved: '✅ Coordenadas actualizadas: {name}',
       step1cAssigned: '📍 Ubicación asignada: {name}',
@@ -299,7 +300,7 @@ const LANGUAGES = {
     meta: { name: 'Català', flag: '🏴󠁥󠁳󠁣󠁴󠁿', dir: 'ltr' },
     langSelector: { label: 'Idioma', tooltip: 'Canviar idioma' },
     modeSelection: {
-      appTitle: '🎨 Processador d\'Imatges V4.4.2',
+      appTitle: '🎨 Processador d\'Imatges V 4.4.3',
       appSubtitle: 'Tria què vols fer amb les teves imatges',
       addTextTitle: 'Afegir Text a Imatges',
       addTextDesc: 'Insereix text personalitzat a les teves imatges amb control total sobre l\'estil, posició i format de sortida.',
@@ -339,6 +340,7 @@ const LANGUAGES = {
       step1cInfo: 'Visualitza i edita la ubicació GPS de les teves imatges al mapa. Arrossega els marcadors per canviar les coordenades. Les imatges sense GPS apareixen a baix: arrossega-les al mapa per assignar-los una ubicació.',
       step1cNoPosLabel: '📌 Imatges sense ubicació GPS — arrossega-les al mapa:',
       step1cDropHere: '📍 Deixa anar aquí per fixar la ubicació',
+      step1cTapMap: '📍 Toca el mapa per col·locar "{name}"',
       step1cMapTip: 'Els canvis es desen automàticament als metadades EXIF en moure o deixar anar un marcador.',
       step1cSaved: '✅ Coordenades actualitzades: {name}',
       step1cAssigned: '📍 Ubicació assignada: {name}',
@@ -531,7 +533,7 @@ const LANGUAGES = {
     meta: { name: 'Euskera', flag: '🏴󠁥󠁳󠁰󠁶󠁿', dir: 'ltr' },
     langSelector: { label: 'Hizkuntza', tooltip: 'Hizkuntza aldatu' },
     modeSelection: {
-      appTitle: '🎨 Irudien Prozesadorea V4.4.2',
+      appTitle: '🎨 Irudien Prozesadorea V 4.4.3',
       appSubtitle: 'Aukeratu zer egin nahi duzun zure irudiekin',
       addTextTitle: 'Testua Gehitu Irudiei',
       addTextDesc: 'Gehitu testu pertsonalizatua zure irudiei estilo, posizio eta irteera-formatuaren kontrol osoarekin.',
@@ -571,6 +573,7 @@ const LANGUAGES = {
       step1cInfo: 'Zure irudien GPS kokapena ikusi eta editatu mapan. Arrastatu marrazkileak koordinatuak aldatzeko. GPS gabeko irudiak behean agertzen dira: arrastatu mapara kokapena esleitzeko.',
       step1cNoPosLabel: '📌 GPS kokapen gabeko irudiak — arrastatu mapara:',
       step1cDropHere: '📍 Askatu hemen kokapena finkatzeko',
+      step1cTapMap: '📍 Sakatu mapan "{name}" jartzeko',
       step1cMapTip: 'Aldaketak automatikoki gordetzen dira EXIF metadatuetan markagailua mugitzen edo askatzen denean.',
       step1cSaved: '✅ Koordinatuak eguneratuta: {name}',
       step1cAssigned: '📍 Kokapena esleituta: {name}',
@@ -762,7 +765,7 @@ const LANGUAGES = {
     meta: { name: 'Galego', flag: '🏴󠁥󠁳󠁧󠁡󠁿', dir: 'ltr' },
     langSelector: { label: 'Idioma', tooltip: 'Cambiar idioma' },
     modeSelection: {
-      appTitle: '🎨 Procesador de Imaxes V4.4.2',
+      appTitle: '🎨 Procesador de Imaxes V 4.4.3',
       appSubtitle: 'Escolle que queres facer coas túas imaxes',
       addTextTitle: 'Engadir Texto a Imaxes',
       addTextDesc: 'Insire texto personalizado nas túas imaxes con control total sobre o estilo, posición e formato de saída.',
@@ -802,6 +805,7 @@ const LANGUAGES = {
       step1cInfo: 'Visualiza e edita a localización GPS das túas imaxes no mapa. Arrastra os marcadores para cambiar as coordenadas. As imaxes sen GPS aparecen abaixo: arrástraas ao mapa para asignarlles unha localización.',
       step1cNoPosLabel: '📌 Imaxes sen localización GPS — arrástraas ao mapa:',
       step1cDropHere: '📍 Solta aquí para fixar a localización',
+      step1cTapMap: '📍 Toca o mapa para colocar "{name}"',
       step1cMapTip: 'Os cambios gárdanse automaticamente nos metadatos EXIF ao mover ou soltar un marcador.',
       step1cSaved: '✅ Coordenadas actualizadas: {name}',
       step1cAssigned: '📍 Localización asignada: {name}',
@@ -994,7 +998,7 @@ const LANGUAGES = {
     meta: { name: 'English', flag: '🇬🇧', dir: 'ltr' },
     langSelector: { label: 'Language', tooltip: 'Change language' },
     modeSelection: {
-      appTitle: '🎨 Image Processor V4.4.2',
+      appTitle: '🎨 Image Processor V 4.4.3',
       appSubtitle: 'Choose what you want to do with your images',
       addTextTitle: 'Add Text to Images',
       addTextDesc: 'Insert custom text into your images with full control over style, position, and output format.',
@@ -1034,6 +1038,7 @@ const LANGUAGES = {
       step1cInfo: 'View and edit the GPS location of your images on the map. Drag the markers to change coordinates. Images without GPS appear below — drag them onto the map to assign a location.',
       step1cNoPosLabel: '📌 Images without GPS location — drag them to the map:',
       step1cDropHere: '📍 Drop here to set location',
+      step1cTapMap: '📍 Tap the map to place "{name}"',
       step1cMapTip: 'Changes are automatically saved to EXIF metadata when you move or drop a marker.',
       step1cSaved: '✅ Coordinates updated: {name}',
       step1cAssigned: '📍 Location assigned: {name}',
@@ -1227,7 +1232,7 @@ const LANGUAGES = {
     meta: { name: 'Français', flag: '🇫🇷', dir: 'ltr' },
     langSelector: { label: 'Langue', tooltip: 'Changer la langue' },
     modeSelection: {
-      appTitle: '🎨 Processeur d\'Images V4.4.2',
+      appTitle: '🎨 Processeur d\'Images V 4.4.3',
       appSubtitle: 'Choisissez ce que vous voulez faire avec vos images',
       addTextTitle: 'Ajouter du Texte aux Images',
       addTextDesc: 'Insérez du texte personnalisé dans vos images avec un contrôle total sur le style, la position et le format de sortie.',
@@ -1267,6 +1272,7 @@ const LANGUAGES = {
       step1cInfo: 'Visualisez et modifiez la localisation GPS de vos images sur la carte. Faites glisser les marqueurs pour changer les coordonnées. Les images sans GPS apparaissent ci-dessous — faites-les glisser sur la carte pour leur attribuer une position.',
       step1cNoPosLabel: '📌 Images sans localisation GPS — glissez-les sur la carte :',
       step1cDropHere: '📍 Déposez ici pour fixer la position',
+      step1cTapMap: '📍 Touchez la carte pour placer "{name}"',
       step1cMapTip: 'Les modifications sont automatiquement enregistrées dans les métadonnées EXIF lors du déplacement ou du dépôt d\'un marqueur.',
       step1cSaved: '✅ Coordonnées mises à jour : {name}',
       step1cAssigned: '📍 Position assignée : {name}',
