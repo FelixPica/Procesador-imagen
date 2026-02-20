@@ -39,6 +39,8 @@
     <title>Procesador de Imágenes - Añadir Texto y Renombrar</title>
     <!-- Traducciones: carga ANTES que el resto del JS -->
     <script src="translations.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/piexifjs@1.0.6/piexif.min.js"></script>
@@ -404,6 +406,38 @@
                 </div>
             </div>
 
+            <!-- Paso 1c: Mapa GPS interactivo -->
+            <div class="step" id="gpsMapStep" style="display: none;">
+                <div class="step-title" style="display: flex; justify-content: space-between; align-items: center; cursor: pointer;" onclick="toggleGpsMapSection()">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span class="step-number">1c</span>
+                        <span id="at-step1cTitle"></span>
+                    </div>
+                    <button type="button" class="btn" style="padding: 8px 16px;" id="gpsMapToggle"></button>
+                </div>
+                <div id="gpsMapContent" style="display: none; margin-top: 15px;">
+                    <div style="padding: 15px; background: #e8f5e9; border-left: 4px solid #4caf50; border-radius: 8px; margin-bottom: 15px;">
+                        <strong>💡</strong> <span id="at-step1cInfo"></span>
+                    </div>
+
+                    <!-- Miniaturas de imágenes sin GPS -->
+                    <div id="gpsNoPosPanel" style="display:none; margin-bottom: 15px;">
+                        <p id="at-step1cNoPosLabel" style="font-weight:600; color:#333; margin-bottom:8px;"></p>
+                        <div id="gpsNoPosList" style="display:flex; flex-wrap:wrap; gap:10px; padding:12px; background:#fff3e0; border-radius:8px; border:2px dashed #ff9800; min-height:60px;">
+                        </div>
+                    </div>
+
+                    <!-- Mapa -->
+                    <div id="gpsMapContainer" style="width:100%; height:480px; border-radius:10px; border:2px solid #e0e0e0; overflow:hidden; position:relative;">
+                        <div id="gpsMap" style="width:100%; height:100%;"></div>
+                        <div id="gpsMapDropOverlay" style="display:none; position:absolute; inset:0; background:rgba(76,175,80,0.25); border:3px dashed #4caf50; border-radius:10px; z-index:1000; pointer-events:none; align-items:center; justify-content:center;">
+                            <span style="background:white; padding:12px 24px; border-radius:8px; font-weight:700; font-size:1.1em; color:#2e7d32;" id="at-step1cDropHere"></span>
+                        </div>
+                    </div>
+                    <p style="margin-top:8px; font-size:0.82em; color:#888; text-align:center;" id="at-step1cMapTip"></p>
+                </div>
+            </div>
+
             <!-- Paso 2: Fuente de Texto -->
             <div class="step">
                 <div class="step-title">
@@ -591,8 +625,8 @@ foto1.jpg,Vacaciones 2024,2024-01-15,viaje,Juan,Playa</pre>
                     </div>
                     <div class="control-group">
                         <label id="lbl-quality"></label>
-                        <input type="range" id="outputQuality" min="60" max="100" value="95">
-                        <span id="qualityValue" style="text-align: center; color: #667eea; font-weight: 600;">95%</span>
+                        <input type="range" id="outputQuality" min="20" max="100" value="50">
+                        <span id="qualityValue" style="text-align: center; color: #667eea; font-weight: 600;">50%</span>
                     </div>
                 </div>
 
@@ -817,6 +851,13 @@ foto1.jpg,Vacaciones 2024,2024-01-15,viaje,Juan,Playa</pre>
         setText('exifSectionToggle',  document.getElementById('exifSectionContent')?.style.display === 'block'
                                         ? at.step1bHideBtn : at.step1bShowBtn);
         setText('at-step1bInfo',      at.step1bInfo);
+        setText('at-step1cTitle',     at.step1cTitle);
+        setText('gpsMapToggle',       document.getElementById('gpsMapContent')?.style.display === 'block'
+                                        ? at.step1cHideBtn : at.step1cShowBtn);
+        setText('at-step1cInfo',      at.step1cInfo);
+        setText('at-step1cNoPosLabel',at.step1cNoPosLabel);
+        setText('at-step1cDropHere',  at.step1cDropHere);
+        setText('at-step1cMapTip',    at.step1cMapTip);
         setText('at-ignoreExifLabel', at.ignoreExifLabel);
         setText('at-ignoreExifDesc',  at.ignoreExifDesc);
         setText('at-step2Title',      at.step2Title);
@@ -1121,8 +1162,8 @@ foto1.jpg,Vacaciones 2024,2024-01-15,viaje,Juan,Playa</pre>
         controls.bgColor.value = '#000000'; controls.bgOpacity.value = 0;
         opacityValue.textContent = tr.opacityTransparent;
         controls.padding.value = 20; controls.fontFamily.value = 'Arial';
-        controls.outputFormat.value = 'jpg'; controls.outputQuality.value = 95;
-        qualityValue.textContent = '95%'; qualityValue.parentElement.style.opacity = '1';
+        controls.outputFormat.value = 'jpg'; controls.outputQuality.value = 50;
+        qualityValue.textContent = '50%'; qualityValue.parentElement.style.opacity = '1';
         autoPreviewCheckbox.checked = false; renameWithTextCheckbox.checked = false;
         exifMode.value = 'keep'; exifCustomOptions.style.display = 'none';
         removeGPS.checked = false; removeDateTime.checked = false; removeCamera.checked = false;
@@ -1130,6 +1171,11 @@ foto1.jpg,Vacaciones 2024,2024-01-15,viaje,Juan,Playa</pre>
         const exifEditStep = document.getElementById('exifEditStep');
         const exifSectionContent = document.getElementById('exifSectionContent');
         exifEditStep.style.display = 'none'; exifSectionContent.style.display = 'none';
+        const gpsMapStep = document.getElementById('gpsMapStep');
+        const gpsMapContent = document.getElementById('gpsMapContent');
+        if (gpsMapStep) gpsMapStep.style.display = 'none';
+        if (gpsMapContent) gpsMapContent.style.display = 'none';
+        if (gpsMap) { Object.values(gpsMarkers).forEach(m => gpsMap.removeLayer(m)); gpsMarkers = {}; }
         document.getElementById('exifSectionToggle').textContent = tr.step1bShowBtn;
         generatePreviewBtn.disabled = true; processImagesBtn.disabled = true;
         showStatus(tr.resetDone, 'success');
@@ -1338,8 +1384,18 @@ foto1.jpg,Vacaciones 2024,2024-01-15,viaje,Juan,Playa</pre>
             </div>`;
         const hasExif = images.some(img => img.exifData);
         const exifEditStep = document.getElementById('exifEditStep');
-        if (hasExif) { exifEditStep.style.display = 'block'; buildExifEditorList(); }
-        else exifEditStep.style.display = 'none';
+        const gpsMapStep = document.getElementById('gpsMapStep');
+        if (hasExif) {
+            exifEditStep.style.display = 'block'; buildExifEditorList();
+            gpsMapStep.style.display = 'block';
+            // Refrescar mapa si ya estaba abierto
+            if (document.getElementById('gpsMapContent').style.display === 'block') {
+                setTimeout(() => { initGpsMap(); refreshGpsMap(); gpsMap.invalidateSize(); }, 100);
+            }
+        } else {
+            exifEditStep.style.display = 'none';
+            gpsMapStep.style.display = 'none';
+        }
     }
 
     function buildExifEditorList() {
@@ -1368,6 +1424,232 @@ foto1.jpg,Vacaciones 2024,2024-01-15,viaje,Juan,Playa</pre>
         const tr = t().addText;
         if (content.style.display === 'none') { content.style.display = 'block'; btn.textContent = tr.step1bHideBtn; }
         else { content.style.display = 'none'; btn.textContent = tr.step1bShowBtn; }
+    }
+
+    // ─── SECCIÓN 1c: MAPA GPS INTERACTIVO ───────────────────────────────────
+    let gpsMap = null;
+    let gpsMarkers = {}; // index → leaflet marker
+    let draggingImageIndex = null;
+
+    function initGpsMap() {
+        if (gpsMap) return;
+        gpsMap = L.map('gpsMap').setView([40.4, -3.7], 5);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://openstreetmap.org">OpenStreetMap</a>',
+            maxZoom: 19
+        }).addTo(gpsMap);
+
+        // Soltar imagen sin GPS sobre el mapa
+        const mapEl = document.getElementById('gpsMap');
+        mapEl.addEventListener('dragover', e => {
+            e.preventDefault();
+            document.getElementById('gpsMapDropOverlay').style.display = 'flex';
+        });
+        mapEl.addEventListener('dragleave', e => {
+            if (!mapEl.contains(e.relatedTarget))
+                document.getElementById('gpsMapDropOverlay').style.display = 'none';
+        });
+        mapEl.addEventListener('drop', e => {
+            e.preventDefault();
+            document.getElementById('gpsMapDropOverlay').style.display = 'none';
+            if (draggingImageIndex === null) return;
+            const rect = mapEl.getBoundingClientRect();
+            const point = L.point(e.clientX - rect.left, e.clientY - rect.top);
+            const latlng = gpsMap.containerPointToLatLng(point);
+            setImageGPS(draggingImageIndex, latlng.lat, latlng.lng, true);
+            draggingImageIndex = null;
+        });
+    }
+
+    function toggleGpsMapSection() {
+        const content = document.getElementById('gpsMapContent');
+        const btn = document.getElementById('gpsMapToggle');
+        const tr = t().addText;
+        if (content.style.display === 'none') {
+            content.style.display = 'block';
+            btn.textContent = tr.step1cHideBtn;
+            setTimeout(() => {
+                initGpsMap();
+                refreshGpsMap();
+                gpsMap.invalidateSize();
+            }, 50);
+        } else {
+            content.style.display = 'none';
+            btn.textContent = tr.step1cShowBtn;
+        }
+    }
+
+    function refreshGpsMap() {
+        if (!gpsMap) return;
+        const tr = t().addText;
+
+        // Limpiar marcadores anteriores
+        Object.values(gpsMarkers).forEach(m => gpsMap.removeLayer(m));
+        gpsMarkers = {};
+
+        const withGps = [], withoutGps = [];
+        const bounds = [];
+
+        images.forEach((img, index) => {
+            if (!img.exifData) return;
+            const gpsData = img.exifData.GPS || {};
+            const getVal = (ref) => {
+                if (!gpsData[ref]) return '';
+                const v = gpsData[ref];
+                if (Array.isArray(v) && v.length === 3)
+                    return v[0][0]/v[0][1] + v[1][0]/(v[1][1]*60) + v[2][0]/(v[2][1]*3600);
+                return '';
+            };
+            const lat = getVal(piexif.GPSIFD.GPSLatitude);
+            const lon = getVal(piexif.GPSIFD.GPSLongitude);
+            const latRef = gpsData[piexif.GPSIFD.GPSLatitudeRef] || 'N';
+            const lonRef = gpsData[piexif.GPSIFD.GPSLongitudeRef] || 'E';
+
+            if (lat !== '' && lon !== '') {
+                const realLat = latRef === 'S' ? -lat : lat;
+                const realLon = lonRef === 'W' ? -lon : lon;
+
+                // Icono personalizado con miniatura
+                const thumb = img.data;
+                const icon = L.divIcon({
+                    className: '',
+                    html: `<div style="
+                        width:48px;height:48px;border-radius:50%;border:3px solid #4285f4;
+                        overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.35);
+                        background:url('${thumb}') center/cover;cursor:grab;
+                    " title="${img.name}"></div>`,
+                    iconSize: [48, 48],
+                    iconAnchor: [24, 24],
+                    popupAnchor: [0, -28]
+                });
+
+                const marker = L.marker([realLat, realLon], { icon, draggable: true }).addTo(gpsMap);
+                marker.bindPopup(`
+                    <div style="text-align:center;min-width:160px;">
+                        <img src="${thumb}" style="width:120px;height:80px;object-fit:cover;border-radius:6px;margin-bottom:6px;"><br>
+                        <strong style="font-size:0.9em;">${img.name}</strong><br>
+                        <span style="font-size:0.8em;color:#666;" id="popup-coords-${index}">${realLat.toFixed(6)}, ${realLon.toFixed(6)}</span>
+                    </div>
+                `);
+
+                marker.on('dragend', (e) => {
+                    const pos = e.target.getLatLng();
+                    setImageGPS(index, pos.lat, pos.lng, false);
+                    const coordEl = document.getElementById(`popup-coords-${index}`);
+                    if (coordEl) coordEl.textContent = `${pos.lat.toFixed(6)}, ${pos.lng.toFixed(6)}`;
+                    marker.openPopup();
+                    showGpsMapFeedback(tr.step1cSaved.replace('{name}', img.name));
+                });
+
+                gpsMarkers[index] = marker;
+                bounds.push([realLat, realLon]);
+                withGps.push(index);
+            } else {
+                withoutGps.push(index);
+            }
+        });
+
+        // Ajustar vista
+        if (bounds.length > 0)
+            bounds.length === 1 ? gpsMap.setView(bounds[0], 13) : gpsMap.fitBounds(bounds, { padding: [40, 40] });
+
+        // Panel de imágenes sin GPS (arrastrables al mapa)
+        const noPosPanel = document.getElementById('gpsNoPosPanel');
+        const noPosList = document.getElementById('gpsNoPosList');
+        if (withoutGps.length > 0) {
+            noPosPanel.style.display = 'block';
+            noPosList.innerHTML = withoutGps.map(idx => {
+                const img = images[idx];
+                return `
+                    <div draggable="true"
+                         data-index="${idx}"
+                         title="${img.name}"
+                         style="display:flex;flex-direction:column;align-items:center;gap:4px;cursor:grab;user-select:none;"
+                         onmousedown="draggingImageIndex=${idx}"
+                         ondragstart="draggingImageIndex=${idx};event.dataTransfer.setData('text/plain','${idx}');">
+                        <img src="${img.data}" style="width:56px;height:56px;object-fit:cover;border-radius:8px;border:2px solid #ff9800;box-shadow:0 1px 4px rgba(0,0,0,0.2);">
+                        <span style="font-size:0.72em;color:#555;max-width:64px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${img.name}</span>
+                    </div>`;
+            }).join('');
+        } else {
+            noPosPanel.style.display = withoutGps.length === 0 && images.some(i => i.exifData) ? 'none' : 'block';
+        }
+    }
+
+    function setImageGPS(index, lat, lon, addMarker) {
+        const img = images[index];
+        if (!img.exifData) img.exifData = { '0th': {}, Exif: {}, GPS: {}, '1st': {} };
+        if (!img.exifData.GPS) img.exifData.GPS = {};
+
+        const latAbs = Math.abs(lat), lonAbs = Math.abs(lon);
+        const toDMS = (val) => {
+            const d = Math.floor(val);
+            const mFull = (val - d) * 60;
+            const m = Math.floor(mFull);
+            const s = Math.round((mFull - m) * 6000);
+            return [[d,1],[m,1],[s,100]];
+        };
+        img.exifData.GPS[piexif.GPSIFD.GPSLatitude]    = toDMS(latAbs);
+        img.exifData.GPS[piexif.GPSIFD.GPSLongitude]   = toDMS(lonAbs);
+        img.exifData.GPS[piexif.GPSIFD.GPSLatitudeRef] = lat >= 0 ? 'N' : 'S';
+        img.exifData.GPS[piexif.GPSIFD.GPSLongitudeRef]= lon >= 0 ? 'E' : 'W';
+
+        // Actualizar campos del editor EXIF si están abiertos
+        const latInput = document.getElementById(`lat-${index}`);
+        const lonInput = document.getElementById(`lon-${index}`);
+        if (latInput) latInput.value = lat.toFixed(6);
+        if (lonInput) lonInput.value = lon.toFixed(6);
+
+        // Si venía sin marcador, añadirlo al mapa
+        if (addMarker && gpsMap) {
+            const tr = t().addText;
+            const thumb = img.data;
+            const icon = L.divIcon({
+                className: '',
+                html: `<div style="
+                    width:48px;height:48px;border-radius:50%;border:3px solid #4caf50;
+                    overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.35);
+                    background:url('${thumb}') center/cover;cursor:grab;
+                " title="${img.name}"></div>`,
+                iconSize: [48, 48], iconAnchor: [24, 24], popupAnchor: [0, -28]
+            });
+            const marker = L.marker([lat, lon], { icon, draggable: true }).addTo(gpsMap);
+            marker.bindPopup(`
+                <div style="text-align:center;min-width:160px;">
+                    <img src="${thumb}" style="width:120px;height:80px;object-fit:cover;border-radius:6px;margin-bottom:6px;"><br>
+                    <strong style="font-size:0.9em;">${img.name}</strong><br>
+                    <span style="font-size:0.8em;color:#666;" id="popup-coords-${index}">${lat.toFixed(6)}, ${lon.toFixed(6)}</span>
+                </div>
+            `).openPopup();
+            marker.on('dragend', (e) => {
+                const pos = e.target.getLatLng();
+                setImageGPS(index, pos.lat, pos.lng, false);
+                const coordEl = document.getElementById(`popup-coords-${index}`);
+                if (coordEl) coordEl.textContent = `${pos.lat.toFixed(6)}, ${pos.lng.toFixed(6)}`;
+                marker.openPopup();
+                showGpsMapFeedback(tr.step1cSaved.replace('{name}', img.name));
+            });
+            gpsMarkers[index] = marker;
+            gpsMap.setView([lat, lon], gpsMap.getZoom() < 10 ? 12 : gpsMap.getZoom());
+
+            // Quitar del panel sin GPS
+            refreshGpsMap();
+            showGpsMapFeedback(tr.step1cAssigned.replace('{name}', img.name));
+        }
+    }
+
+    function showGpsMapFeedback(msg) {
+        let fb = document.getElementById('gpsMapFeedback');
+        if (!fb) {
+            fb = document.createElement('div');
+            fb.id = 'gpsMapFeedback';
+            fb.style.cssText = 'position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:#2e7d32;color:white;padding:8px 18px;border-radius:20px;font-size:0.9em;font-weight:600;z-index:2000;box-shadow:0 2px 8px rgba(0,0,0,0.3);pointer-events:none;transition:opacity 0.4s;';
+            document.getElementById('gpsMapContainer').appendChild(fb);
+        }
+        fb.textContent = msg;
+        fb.style.opacity = '1';
+        clearTimeout(fb._timer);
+        fb._timer = setTimeout(() => { fb.style.opacity = '0'; }, 2500);
     }
 
     function toggleExifEditor(index) {
