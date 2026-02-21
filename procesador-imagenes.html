@@ -379,6 +379,7 @@
                 </div>
                 <div style="display: flex; gap: 10px;">
                     <button id="backToMode1" class="btn btn-primary" style="background: #6c757d;" id="at-backBtn"></button>
+                    <button id="sendToRename" class="btn btn-primary" style="background: #28a745; white-space: nowrap;"></button>
                     <button id="resetAll" class="btn btn-primary btn-reset" style="white-space: nowrap;" id="at-resetBtn"></button>
                 </div>
             </div>
@@ -446,12 +447,17 @@
                 </div>
             </div>
 
-            <!-- Paso 2: Fuente de Texto -->
-            <div class="step">
-                <div class="step-title">
-                    <span class="step-number">2</span>
-                    <span id="at-step2Title"></span>
+            <!-- Paso 2: Fuente de Texto (opcional) -->
+            <div class="step" id="textSourceStep">
+                <div class="step-title" style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleTextSourceSection()">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span class="step-number">2</span>
+                        <span id="at-step2Title"></span>
+                       <!-- <span id="at-step2Optional" style="font-size:0.8em; font-weight:400; color:#888; margin-left:4px;"></span> -->
+                    </div>
+                    <button type="button" class="btn" style="padding:8px 16px;" id="textSourceToggle"></button>
                 </div>
+                <div id="textSourceContent" style="display:none; margin-top:15px;">
                 <div style="margin-bottom: 20px;">
                     <label id="at-textSourceLabel" style="font-weight: 600; color: #333; margin-bottom: 10px; display: block;"></label>
                     <div style="display: flex; gap: 15px; flex-wrap: wrap;">
@@ -556,6 +562,7 @@ foto1.jpg,Vacaciones 2024,2024-01-15,viaje,Juan,Playa</pre>
                     </details>
                 </div>
                 <div id="csvPreview" class="csv-preview"></div>
+                </div><!-- /textSourceContent -->
             </div>
 
             <!-- Paso 3: Personalizar -->
@@ -717,6 +724,7 @@ foto1.jpg,Vacaciones 2024,2024-01-15,viaje,Juan,Playa</pre>
                 </div>
                 <div style="display: flex; gap: 10px;">
                     <button id="backToMode2" class="btn btn-primary" style="background: #6c757d;"></button>
+                    <button id="sendToAddText" class="btn btn-primary" style="background: #28a745; white-space: nowrap;"></button>
                     <button id="resetAllMode2" class="btn btn-primary btn-reset" style="white-space: nowrap;"></button>
                 </div>
             </div>
@@ -869,6 +877,10 @@ foto1.jpg,Vacaciones 2024,2024-01-15,viaje,Juan,Playa</pre>
         setText('at-ignoreExifLabel', at.ignoreExifLabel);
         setText('at-ignoreExifDesc',  at.ignoreExifDesc);
         setText('at-step2Title',      at.step2Title);
+        setText('at-step2Optional',    at.step2Optional);
+        setText('textSourceToggle',    document.getElementById('textSourceContent')?.style.display === 'block'
+                                         ? at.step2HideBtn : at.step2ShowBtn);
+        setText('sendToRename',        at.sendToRename);
         setText('at-textSourceLabel', at.textSourceLabel);
         setText('at-sourceCSV',       at.sourceCSV);
         setText('at-sourceManual',    at.sourceManual);
@@ -955,6 +967,7 @@ foto1.jpg,Vacaciones 2024,2024-01-15,viaje,Juan,Playa</pre>
         setText('rn-title',              rn.title);
         setText('rn-subtitle',           rn.subtitle);
         setText('backToMode2',           rn.backBtn);
+        setText('sendToAddText',         rn.sendToAddText);
         setText('resetAllMode2',         rn.resetBtn);
         setText('rn-step1Title',         rn.step1Title);
         setText('rn-step1DropText',      rn.step1DropText);
@@ -1047,6 +1060,8 @@ foto1.jpg,Vacaciones 2024,2024-01-15,viaje,Juan,Playa</pre>
 
     document.getElementById('backToMode1').addEventListener('click', backToModeSelection);
     document.getElementById('backToMode2').addEventListener('click', backToModeSelection);
+    document.getElementById('sendToRename').addEventListener('click', sendImagesToRename);
+    document.getElementById('sendToAddText').addEventListener('click', sendImagesToAddText);
 
     // ════════════════════════════════════════════════════════════════
     //  MODO 1: AÑADIR TEXTO
@@ -1165,7 +1180,7 @@ foto1.jpg,Vacaciones 2024,2024-01-15,viaje,Juan,Playa</pre>
         sourceCSV.checked = true; updateTextSource();
         delimiterSemicolon.checked = true; customDelimiterInput.value = '';
         controls.positionY.value = 'top'; controls.positionX.value = 'center';
-        controls.fontSize.value = 48; controls.textColor.value = '#ffffff';
+        controls.fontSize.value = 100; controls.textColor.value = '#ffffff';
         controls.textStroke.value = 3; controls.strokeColor.value = '#000000';
         controls.bgColor.value = '#000000'; controls.bgOpacity.value = 0;
         opacityValue.textContent = tr.opacityTransparent;
@@ -1185,6 +1200,10 @@ foto1.jpg,Vacaciones 2024,2024-01-15,viaje,Juan,Playa</pre>
         if (gpsMapContent) gpsMapContent.style.display = 'none';
         if (gpsMap) { Object.values(gpsMarkers).forEach(m => gpsMap.removeLayer(m)); gpsMarkers = {}; }
         document.getElementById('exifSectionToggle').textContent = tr.step1bShowBtn;
+        const tsContent = document.getElementById('textSourceContent');
+        const tsToggle  = document.getElementById('textSourceToggle');
+        if (tsContent) tsContent.style.display = 'none';
+        if (tsToggle && tr.step2ShowBtn) tsToggle.textContent = tr.step2ShowBtn;
         generatePreviewBtn.disabled = true; processImagesBtn.disabled = true;
         showStatus(tr.resetDone, 'success');
         setTimeout(() => { status.style.display = 'none'; }, 3000);
@@ -1426,7 +1445,67 @@ foto1.jpg,Vacaciones 2024,2024-01-15,viaje,Juan,Playa</pre>
         }).join('');
     }
 
-    function toggleExifSection() {
+    function toggleTextSourceSection() {
+        const cnt = document.getElementById('textSourceContent');
+        const btn = document.getElementById('textSourceToggle');
+        const tr  = t().addText;
+        if (cnt.style.display === 'none') {
+            cnt.style.display = 'block';
+            btn.textContent = tr.step2HideBtn;
+        } else {
+            cnt.style.display = 'none';
+            btn.textContent = tr.step2ShowBtn;
+            // Al cerrar el panel de texto, vaciamos el mapping para procesar sin texto
+            textMapping = {};
+            checkReadyState();
+        }
+    }
+
+    // ─── TRANSFERIR IMÁGENES ENTRE MODOS ─────────────────────────────────────
+    function sendImagesToRename() {
+        if (!images.length) {
+            alert(t().addText.sendToRenameEmpty);
+            return;
+        }
+        if (!confirm(t().addText.sendToRenameConfirm)) return;
+        // Construir renameImages a partir de images del modo 1
+        renameImages = images.map(img => ({
+            originalName: img.name,
+            newName:       img.name.replace(/\.[^.]+$/, ''),
+            format:        img.name.split('.').pop().toLowerCase().replace('jpeg','jpg'),
+            quality:       50,
+            data:          img.data,
+            exifData:      img.exifData || null
+        }));
+        // Cambiar a modo 2 sin pasar por la pantalla de selección
+        modeSelection.style.display   = 'none';
+        addTextMode.style.display     = 'none';
+        renameConvertMode.style.display = 'block';
+        updateRenameList();
+    }
+
+    function sendImagesToAddText() {
+        if (!renameImages.length) {
+            alert(t().rename.sendToAddTextEmpty);
+            return;
+        }
+        if (!confirm(t().rename.sendToAddTextConfirm)) return;
+        // Construir images a partir de renameImages del modo 2
+        images = renameImages.map(img => ({
+            name:     img.originalName,
+            data:     img.data,
+            exifData: img.exifData || null
+        }));
+        // Cambiar a modo 1 sin pasar por la pantalla de selección
+        modeSelection.style.display     = 'none';
+        renameConvertMode.style.display = 'none';
+        addTextMode.style.display       = 'block';
+        updateImageList();
+        updateTextMapping();
+        checkReadyState();
+    }
+
+        function toggleExifSection() {
         const content = document.getElementById('exifSectionContent');
         const btn = document.getElementById('exifSectionToggle');
         const tr = t().addText;
@@ -1911,7 +1990,10 @@ foto1.jpg,Vacaciones 2024,2024-01-15,viaje,Juan,Playa</pre>
     }
 
     function checkReadyState() {
-        const isReady = images.length > 0 && Object.keys(textMapping).length > 0;
+        // Si el paso 2 está cerrado, el texto es opcional
+        const paso2Abierto = document.getElementById('textSourceContent')?.style.display === 'block';
+        const tieneTexto = Object.keys(textMapping).length > 0;
+        const isReady = images.length > 0 && (!paso2Abierto || tieneTexto);
         generatePreviewBtn.disabled = !isReady;
         processImagesBtn.disabled = !isReady;
         previewInfo.style.display = (isReady && !autoPreviewCheckbox.checked) ? 'block' : 'none';
